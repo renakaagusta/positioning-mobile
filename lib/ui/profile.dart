@@ -1,15 +1,19 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:positioning/ui/sign_up.dart';
-import 'package:provider/provider.dart';
 import 'package:positioning/constant/assets.dart';
 import 'package:positioning/constant/colors.dart';
-import 'package:positioning/data/model/auth.dart';
+import 'package:positioning/data/model/user.dart';
+import 'package:positioning/helpers/provider.dart';
 import 'package:positioning/provider/auth/auth_provider.dart';
-import 'package:positioning/ui/dashboard.dart';
+import 'package:positioning/provider/user/user_profile_provider.dart';
 import 'package:positioning/ui/sign_in.dart';
+import 'package:positioning/ui/sign_up.dart';
+import 'package:positioning/ui/welcome.dart';
+import 'package:positioning/utils/result_state.dart';
 import 'package:positioning/widgets/elevated_button.dart';
 import 'package:positioning/widgets/outlined_button.dart';
+import 'package:provider/provider.dart';
 
 class ProfilePage extends StatefulWidget {
   static const routeName = '/profile';
@@ -42,32 +46,90 @@ class _ProfilePageState extends State<ProfilePage> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text('Profile',
-                      style: Theme.of(context).textTheme.headlineLarge?.copyWith(fontWeight: FontWeight.bold)),
-                  Hero(
-                    tag: AppAsset.welcomeIllustration,
-                    child: Image.asset(
-                      AppAsset.welcomeIllustration,
-                      height: 250,
-                      width: 250,
-                    ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Icon(CupertinoIcons.person),
+                      const SizedBox(
+                        width: 10,
+                      ),
+                      Text('Profil',
+                          style: Theme.of(context)
+                              .textTheme
+                              .headlineMedium
+                              ?.copyWith(fontWeight: FontWeight.bold)),
+                    ],
                   ),
+                  Consumer<UserProfileProvider>(builder: (context, state, _) {
+                    if (state.state == ResultState.Loading) {
+                    } else if (state.state == ResultState.Loading) {
+                    } else if (state.state == ResultState.HasData) {
+                      User user = state.resultUserProfile!;
+                      return Column(
+                        children: [
+                          Text('Nama lengkap',
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .titleMedium
+                                  ?.copyWith(fontWeight: FontWeight.bold)),
+                          const SizedBox(
+                            height: 5,
+                          ),
+                          Text(user.name!),
+                          const SizedBox(
+                            height: 20,
+                          ),
+                          Text('Nama pengguna',
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .titleMedium
+                                  ?.copyWith(fontWeight: FontWeight.bold)),
+                          const SizedBox(
+                            height: 5,
+                          ),
+                          Text(user.username!),
+                          const SizedBox(
+                            height: 20,
+                          ),
+                          Text('Email',
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .titleMedium
+                                  ?.copyWith(fontWeight: FontWeight.bold)),
+                          const SizedBox(
+                            height: 5,
+                          ),
+                          Text(user.email!),
+                          const SizedBox(
+                            height: 20,
+                          ),
+                        ],
+                      );
+                    }
+                    return Container();
+                  }),
                   Column(
                     children: [
-                      AppOutlinedButton(
-                          onPressed: () {
-                            Navigator.of(context)
-                                .pushNamed(SignInPage.routeName);
-                          },
-                          text: 'Sign In',
-                          color: AppColor.primaryColor),
                       AppElevatedButton(
                           onPressed: () {
                             Navigator.of(context)
                                 .pushNamed(SignUpPage.routeName);
                           },
-                          text: 'Sign Up',
+                          icon: const Icon(CupertinoIcons.pencil),
+                          text: 'Sunting profil',
                           color: Colors.white),
+                      AppOutlinedButton(
+                          onPressed: () async {
+                            AppProviders.disposeAllDisposableProviders(context);
+                            await Provider.of<AuthProvider>(context,
+                                    listen: false)
+                                .removeFromMemory();
+                            Navigator.of(context).pushNamedAndRemoveUntil(
+                                WelcomePage.routeName, (route) => false);
+                          },
+                          icon: Icon(CupertinoIcons.chevron_back),
+                          text: 'Keluar',
+                          color: AppColor.primaryColor),
                     ],
                   )
                 ],

@@ -17,6 +17,9 @@ class AppOutlinedButton extends StatelessWidget {
     List<Widget> content = [];
     if (icon != null) {
       content.add(icon!);
+      content.add(const SizedBox(
+        width: 10,
+      ));
     }
     content.add(Text(text,
         style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: color)));

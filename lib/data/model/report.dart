@@ -1,0 +1,105 @@
+class Report {
+  String? id;
+  String? description;
+  String? rider;
+  List<Routes>? routes;
+  String? title;
+  String? status;
+  CreatedAt? createdAt;
+  String? category;
+  String? endPoint;
+  String? type;
+  String? startingPoint;
+
+  Report(
+      {this.id,
+      this.description,
+      this.rider,
+      this.routes,
+      this.title,
+      this.status,
+      this.createdAt,
+      this.category,
+      this.endPoint,
+      this.type,
+      this.startingPoint});
+
+  Report.fromJson(Map<String, dynamic> json) {
+    id = json['id'];
+    description = json['description'];
+    rider = json['rider'];
+    if (json['routes'] != null) {
+      routes = <Routes>[];
+      json['routes'].forEach((v) {
+        routes!.add(new Routes.fromJson(v));
+      });
+    }
+    title = json['title'];
+    status = json['status'];
+    createdAt = json['createdAt'] != null
+        ? new CreatedAt.fromJson(json['createdAt'])
+        : null;
+    category = json['category'];
+    endPoint = json['endPoint'];
+    type = json['type'];
+    startingPoint = json['startingPoint'];
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = new Map<String, dynamic>();
+    data['id'] = this.id;
+    data['description'] = this.description;
+    data['rider'] = this.rider;
+    if (this.routes != null) {
+      data['routes'] = this.routes!.map((v) => v.toJson()).toList();
+    }
+    data['title'] = this.title;
+    data['status'] = this.status;
+    if (this.createdAt != null) {
+      data['createdAt'] = this.createdAt!.toJson();
+    }
+    data['category'] = this.category;
+    data['endPoint'] = this.endPoint;
+    data['type'] = this.type;
+    data['startingPoint'] = this.startingPoint;
+    return data;
+  }
+}
+
+class Routes {
+  double? lng;
+  double? lat;
+
+  Routes({this.lng, this.lat});
+
+  Routes.fromJson(Map<String, dynamic> json) {
+    lng = json['lng'];
+    lat = json['lat'];
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = new Map<String, dynamic>();
+    data['lng'] = this.lng;
+    data['lat'] = this.lat;
+    return data;
+  }
+}
+
+class CreatedAt {
+  int? iSeconds;
+  int? iNanoseconds;
+
+  CreatedAt({this.iSeconds, this.iNanoseconds});
+
+  CreatedAt.fromJson(Map<String, dynamic> json) {
+    iSeconds = json['_seconds'];
+    iNanoseconds = json['_nanoseconds'];
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = new Map<String, dynamic>();
+    data['_seconds'] = this.iSeconds;
+    data['_nanoseconds'] = this.iNanoseconds;
+    return data;
+  }
+}

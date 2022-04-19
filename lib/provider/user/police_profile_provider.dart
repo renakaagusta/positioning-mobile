@@ -9,25 +9,25 @@ import 'package:positioning/helpers/exception/http_exception.dart';
 import 'package:positioning/helpers/shared_preferences.dart';
 import 'package:positioning/utils/result_state.dart';
 
-class UserProfileProvider extends DisposableProvider{
+class PoliceProfileProvider extends DisposableProvider{
   UserService _userService = UserService(AppDio.getDio());
   UserLocal _userLocal = UserLocal(SharedPrefs.instance);
 
   ResultState _state = ResultState.Idle;
-  User? _resultUserProfile;
+  User? _resultPoliceProfile;
   String? _error;
 
   String? get error => _error;
-  User? get resultUserProfile => _resultUserProfile;
-  Future<dynamic> getUserProfile(String userId) =>
-      _getUserProfile(userId);
+  User? get resultPoliceProfile => _resultPoliceProfile;
+  Future<dynamic> getPoliceProfile(String userId) =>
+      _getPoliceProfile(userId);
   Future<dynamic> saveToMemory() =>
       _saveToMemory();
   Future<dynamic> readFromMemory() =>
       _readFromMemory();
   ResultState get state => _state;
 
-  Future<dynamic> _getUserProfile(String userId) async {
+  Future<dynamic> _getPoliceProfile(String userId) async {
     try {
       _state = ResultState.Loading;
       notifyListeners();
@@ -37,7 +37,7 @@ class UserProfileProvider extends DisposableProvider{
         notifyListeners();
       } else {
         _state = ResultState.HasData;
-        _resultUserProfile = result;
+        _resultPoliceProfile = result;
         notifyListeners();
       }
     } on HttpException catch (e) {
@@ -50,7 +50,7 @@ class UserProfileProvider extends DisposableProvider{
   Future<bool> _saveToMemory() async {
     try {
       return await _userLocal
-          .save(resultUserProfile!.toJson());
+          .save(resultPoliceProfile!.toJson());
     } catch (e) {
       rethrow;
     }
@@ -59,7 +59,7 @@ class UserProfileProvider extends DisposableProvider{
   Future<User> _readFromMemory() async {
     try {
       User user = await _userLocal.get();
-      _resultUserProfile = user;
+      _resultPoliceProfile = user;
       return user;
     } catch (e) {
       rethrow;

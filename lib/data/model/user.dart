@@ -6,7 +6,7 @@ class User {
   String? password;
   String? name;  
   String? username;
-  dynamic? metadata;
+  dynamic meta;
 
   User(
       {this.role,
@@ -15,7 +15,8 @@ class User {
       this.email,
       this.password,
       this.name,
-      this.username});
+      this.username,
+      this.meta});
 
   User.fromJson(Map<String, dynamic> json) {
     role = json['role'];
@@ -25,7 +26,7 @@ class User {
     password = json['password'];
     name = json['name'];
     username = json['username'];
-    metadata = json['metadata'];
+    meta = json['meta'];
   }
 
   Map<String, dynamic> toJson() {
@@ -37,7 +38,7 @@ class User {
     data['password'] = this.password;
     data['name'] = this.name;
     data['username'] = this.username;
-    data['metadata'] = this.metadata;
+    data['meta'] = this.meta;
     return data;
   }
 }

@@ -3,11 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:positioning/constant/assets.dart';
 import 'package:positioning/constant/colors.dart';
-import 'package:positioning/data/model/user.dart';
-import 'package:positioning/provider/user/hospital_profile_provider.dart';
+import 'package:positioning/data/model/report.dart';
+import 'package:positioning/provider/user/report_detail_provider.dart';
 import 'package:positioning/utils/result_state.dart';
 import 'package:positioning/widgets/app_bar.dart';
 import 'package:positioning/widgets/card.dart';
@@ -15,22 +14,22 @@ import 'package:positioning/widgets/elevated_button.dart';
 import 'package:positioning/widgets/outlined_button.dart';
 import 'package:provider/provider.dart';
 
-class HospitalDetailArguments {
-  String hospitalId;
+class ReportDetailArguments {
+  String reportId;
 
-  HospitalDetailArguments({required this.hospitalId});
+  ReportDetailArguments({required this.reportId});
 }
 
-class HospitalDetailPage extends StatefulWidget {
-  static const routeName = '/hospital_detail';
+class ReportDetailPage extends StatefulWidget {
+  static const routeName = '/report_detail';
 
-  const HospitalDetailPage({Key? key}) : super(key: key);
+  const ReportDetailPage({Key? key}) : super(key: key);
 
   @override
-  _HospitalDetailPageState createState() => _HospitalDetailPageState();
+  _ReportDetailPageState createState() => _ReportDetailPageState();
 }
 
-class _HospitalDetailPageState extends State<HospitalDetailPage> {
+class _ReportDetailPageState extends State<ReportDetailPage> {
   GoogleMapController? _mapController;
   List<Marker> _markers = [];
 
@@ -64,17 +63,17 @@ class _HospitalDetailPageState extends State<HospitalDetailPage> {
     return '${place.street}, ${place.subLocality}, ${place.locality}, ${place.postalCode}, ${place.country}';
   }
 
-  void getHospitalProfile() {
+  void getReportProfile() {
     final arguments =
-        ModalRoute.of(context)!.settings.arguments as HospitalDetailArguments;
-    Provider.of<HospitalProfileProvider>(context, listen: false)
-        .getHospitalProfile(arguments.hospitalId);
+        ModalRoute.of(context)!.settings.arguments as ReportDetailArguments;
+    Provider.of<ReportDetailProvider>(context, listen: false)
+        .getReportDetail(arguments.reportId);
   }
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance?.addPostFrameCallback((_) => getHospitalProfile());
+    WidgetsBinding.instance?.addPostFrameCallback((_) => getReportProfile());
   }
 
   @override
@@ -90,7 +89,7 @@ class _HospitalDetailPageState extends State<HospitalDetailPage> {
           appBar: CustomAppBar(
             title: 'Rumah Sakit',
           ),
-          body: Consumer<HospitalProfileProvider>(
+          body: Consumer<ReportDetailProvider>(
             builder: (context, state, _) {
               if (state.state == ResultState.Loading) {
                 return Container(
@@ -112,47 +111,10 @@ class _HospitalDetailPageState extends State<HospitalDetailPage> {
                   )),
                 );
               } else if (state.state == ResultState.NoData) {
-                return Container(
-                  height: MediaQuery.of(context).size.height - 300,
-                  width: MediaQuery.of(context).size.width,
-                  child: Center(
-                      child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: const [
-                      Icon(CupertinoIcons.exclamationmark_circle, size: 60),
-                      SizedBox(
-                        height: 10,
-                      ),
-                      Text('Rumah sakit tidak ditemukan'),
-                    ],
-                  )),
-                );
+                return const Center(child: Text('Report not found'));
               } else if (state.state == ResultState.HasData) {
-                User hospital = state.resultHospitalProfile!;
-                LatLng position = LatLng(
-                    double.tryParse(hospital.meta['location']['static']
-                                ['latitude']) !=
-                            null
-                        ? double.parse(
-                            hospital.meta['location']['static']['latitude'])
-                        : 0.0,
-                    double.tryParse(hospital.meta['location']['static']
-                                ['longitude']) !=
-                            null
-                        ? double.parse(
-                            hospital.meta['location']['static']['longitude'])
-                        : 0.0);
-                if (_mapController != null && _markers.isEmpty) {
-                  _handleAddMarker(position);
-                  _mapController!.animateCamera(
-                    CameraUpdate.newCameraPosition(
-                      CameraPosition(
-                        target: LatLng(position.latitude, position.longitude),
-                        zoom: 14,
-                      ),
-                    ),
-                  );
-                }
+                Report report = state.resultReportDetail!;
+                if (_mapController != null && _markers.isEmpty) {}
                 return Stack(
                   children: [
                     Container(
@@ -160,13 +122,6 @@ class _HospitalDetailPageState extends State<HospitalDetailPage> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(hospital.name!,
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .titleLarge
-                                    ?.copyWith(
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.black)),
                             const SizedBox(
                               height: 30,
                             ),
@@ -178,7 +133,7 @@ class _HospitalDetailPageState extends State<HospitalDetailPage> {
                             const SizedBox(
                               height: 5,
                             ),
-                            Text(hospital.email!),
+                            Text("-"),
                             const SizedBox(
                               height: 20,
                             ),
@@ -190,7 +145,7 @@ class _HospitalDetailPageState extends State<HospitalDetailPage> {
                             const SizedBox(
                               height: 5,
                             ),
-                            Text(hospital.meta['phoneNumber']),
+                            Text("-"),
                             const SizedBox(
                               height: 20,
                             ),
@@ -202,12 +157,7 @@ class _HospitalDetailPageState extends State<HospitalDetailPage> {
                             const SizedBox(
                               height: 5,
                             ),
-                            FutureBuilder<String>(
-                                future: _getAddressFromLatLong(position),
-                                builder: (BuildContext context,
-                                    AsyncSnapshot<String> snapshot) {
-                                  return Text(snapshot.data ?? '-');
-                                }),
+                            Text("-"),
                             const SizedBox(
                               height: 20,
                             ),
@@ -241,9 +191,7 @@ class _HospitalDetailPageState extends State<HospitalDetailPage> {
                             content: Column(
                               children: [
                                 AppOutlinedButton(
-                                    onPressed: ()  {
-                                      launch('tel://${hospital.meta['phoneNumber']}');
-                                      },
+                                    onPressed: () => {},
                                     icon: Icon(CupertinoIcons.phone),
                                     text: 'Panggilan',
                                     color: AppColor.primaryColor),
@@ -260,7 +208,7 @@ class _HospitalDetailPageState extends State<HospitalDetailPage> {
                   ],
                 );
               } else {
-                return Container(child: Text('Hospital not found'));
+                return Container(child: Text('Report not found'));
               }
             },
           ),

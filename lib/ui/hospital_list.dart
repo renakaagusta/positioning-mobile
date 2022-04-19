@@ -1,18 +1,13 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:positioning/data/model/user.dart';
-import 'package:positioning/provider/user/user_list_provider.dart';
-import 'package:positioning/ui/sign_up.dart';
-import 'package:positioning/utils/result_state.dart';
-import 'package:provider/provider.dart';
 import 'package:positioning/constant/assets.dart';
-import 'package:positioning/constant/colors.dart';
-import 'package:positioning/data/model/auth.dart';
-import 'package:positioning/provider/auth/auth_provider.dart';
-import 'package:positioning/ui/dashboard.dart';
-import 'package:positioning/ui/sign_in.dart';
-import 'package:positioning/widgets/elevated_button.dart';
-import 'package:positioning/widgets/outlined_button.dart';
+import 'package:positioning/data/model/user.dart';
+import 'package:positioning/provider/user/hospital_list_provider.dart';
+import 'package:positioning/ui/hospital_detail.dart';
+import 'package:positioning/utils/result_state.dart';
+import 'package:positioning/widgets/card.dart';
+import 'package:provider/provider.dart';
 
 class HospitalListPage extends StatefulWidget {
   static const routeName = '/hospital_list';
@@ -24,14 +19,14 @@ class HospitalListPage extends StatefulWidget {
 }
 
 class _HospitalListPageState extends State<HospitalListPage> {
-  void getUserList() async {
-    Provider.of<UserListProvider>(context, listen: false).getUserList();
+  void getHospitalList() async {
+    Provider.of<HospitalListProvider>(context, listen: false).getHospitalList();
   }
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance?.addPostFrameCallback((_) => getUserList());
+    WidgetsBinding.instance?.addPostFrameCallback((_) => getHospitalList());
   }
 
   @override
@@ -50,24 +45,136 @@ class _HospitalListPageState extends State<HospitalListPage> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text('Rumah Sakit',
-                      style: Theme.of(context)
-                          .textTheme
-                          .headlineLarge
-                          ?.copyWith(fontWeight: FontWeight.bold)),
-                  Consumer<UserListProvider>(
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Icon(CupertinoIcons.heart),
+                      const SizedBox(
+                        width: 10,
+                      ),
+                      Text('Rumah Sakit',
+                          style: Theme.of(context)
+                              .textTheme
+                              .headlineMedium
+                              ?.copyWith(fontWeight: FontWeight.bold)),
+                    ],
+                  ),
+                  Consumer<HospitalListProvider>(
                     builder: (context, state, _) {
                       if (state.state == ResultState.Loading) {
-                        return Container(child: Text('Loading'));
+                        return Container(
+                          height: MediaQuery.of(context).size.height - 300,
+                          width: MediaQuery.of(context).size.width,
+                          child: Center(
+                              child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Image.asset(
+                                AppAsset.welcomeIllustration,
+                                height: 200,
+                              ),
+                              const SizedBox(
+                                height: 10,
+                              ),
+                              const Text('Loading...'),
+                            ],
+                          )),
+                        );
                       } else if (state.state == ResultState.NoData) {
-                        return Container(child: Text('Hospital not found'));
+                        return Container(
+                          height: MediaQuery.of(context).size.height - 300,
+                          width: MediaQuery.of(context).size.width,
+                          child: Center(
+                              child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: const [
+                              Icon(CupertinoIcons.exclamationmark_circle,
+                                  size: 60),
+                              SizedBox(
+                                height: 10,
+                              ),
+                              Text('Rumah sakit tidak ditemukan'),
+                            ],
+                          )),
+                        );
                       } else if (state.state == ResultState.HasData) {
-                        List<User> hospitalList = state.resultUserList!
+                        List<User> hospitalList = state.resultHospitalList!
                             .where((user) => user.role == 'hospital')
                             .toList();
-                        return ListView.builder(
-                            itemBuilder: (context, index) => Container(),
-                            itemCount: hospitalList.length);
+                        if (hospitalList.isEmpty) {
+                          return Container(
+                            height: MediaQuery.of(context).size.height - 300,
+                            width: MediaQuery.of(context).size.width,
+                            child: Center(
+                                child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: const [
+                                Icon(CupertinoIcons.exclamationmark_circle,
+                                    size: 60),
+                                SizedBox(
+                                  height: 10,
+                                ),
+                                Text('Rumah sakit tidak ditemukan'),
+                              ],
+                            )),
+                          );
+                        }
+                        return LimitedBox(
+                            maxHeight: MediaQuery.of(context).size.height - 200,
+                            maxWidth: MediaQuery.of(context).size.width,
+                            child: ListView.builder(
+                                itemBuilder: (context, index) =>
+                                    Column(children: [
+                                      GestureDetector(
+                                        onTap: () => Navigator.of(context)
+                                            .pushNamed(
+                                                HospitalDetailPage.routeName,
+                                                arguments:
+                                                    HospitalDetailArguments(
+                                                        hospitalId:
+                                                            hospitalList[index]
+                                                                .id!)),
+                                        child: AppCard(
+                                            padding: const EdgeInsets.symmetric(
+                                                horizontal: 10, vertical: 20),
+                                            width: MediaQuery.of(context)
+                                                .size
+                                                .width,
+                                            content: Row(
+                                              children: [
+                                                Column(
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                  children: [
+                                                    SizedBox(
+                                                      width: 300,
+                                                      child: Text(
+                                                          hospitalList[index]
+                                                              .name!,
+                                                          style: Theme.of(
+                                                                  context)
+                                                              .textTheme
+                                                              .titleMedium
+                                                              ?.copyWith(
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .bold)),
+                                                    ),
+                                                    const SizedBox(
+                                                      height: 10,
+                                                    ),
+                                                    Text(hospitalList[index]
+                                                        .email!),
+                                                  ],
+                                                )
+                                              ],
+                                            )),
+                                      ),
+                                      const SizedBox(
+                                        height: 20,
+                                      )
+                                    ]),
+                                itemCount: hospitalList.length));
                       } else {
                         return Container(child: Text('Hospital not found'));
                       }

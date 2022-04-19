@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:positioning/constant/assets.dart';
 import 'package:positioning/constant/colors.dart';
 import 'package:positioning/constant/strings.dart';
 import 'package:positioning/provider/user/user_profile_provider.dart';
@@ -50,9 +51,11 @@ class _HomePageState extends State<HomePage> {
     String translatePosition = await _getAddressFromLatLong(
         LatLng(position.latitude, position.longitude));
 
-    setState(() {
-      address = translatePosition;
-    });
+    if (mounted) {
+      setState(() {
+        address = translatePosition;
+      });
+    }
   }
 
   Future<String> _getAddressFromLatLong(LatLng position) async {
@@ -81,9 +84,21 @@ class _HomePageState extends State<HomePage> {
           body: Consumer<UserProfileProvider>(
             builder: (context, state, _) {
               if (state.state == ResultState.NoData) {
-                return Container(child: Text('User not found'));
+                return Center(child: Text('User not found'));
               } else if (state.state == ResultState.Loading) {
-                return Container(child: Text('Loading'));
+                return Container(
+                          height: MediaQuery.of(context).size.height - 300,
+                          width: MediaQuery.of(context).size.width,
+                          child: Center(
+                              child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Image.asset(AppAsset.welcomeIllustration, height: 200,),
+                              const SizedBox(height: 10,),
+                              const Text('Loading...'),
+                            ],
+                          )),
+                        );
               } else if (state.state == ResultState.HasData) {
                 return Container(
                     padding: const EdgeInsets.symmetric(
@@ -91,6 +106,9 @@ class _HomePageState extends State<HomePage> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+                        const SizedBox(
+                          height: 20,
+                        ),
                         Text(AppString.appName,
                             style: Theme.of(context)
                                 .textTheme
@@ -121,7 +139,9 @@ class _HomePageState extends State<HomePage> {
                                 Text('Lokasi anda',
                                     style: Theme.of(context)
                                         .textTheme
-                                        .titleMedium?.copyWith(fontWeight: FontWeight.bold)),
+                                        .titleMedium
+                                        ?.copyWith(
+                                            fontWeight: FontWeight.bold)),
                               ],
                             ),
                             GestureDetector(
