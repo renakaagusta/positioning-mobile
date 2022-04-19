@@ -1,0 +1,1 @@
+List<String> citizenshipList = ['WNI', 'WNA'];
