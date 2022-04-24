@@ -9,10 +9,13 @@ import 'package:positioning/helpers/shared_preferences.dart';
 import 'package:positioning/provider/auth/auth_provider.dart';
 import 'package:positioning/provider/user/hospital_list_provider.dart';
 import 'package:positioning/provider/user/hospital_profile_provider.dart';
+import 'package:positioning/provider/user/point_collection_list_provider.dart';
 import 'package:positioning/provider/user/police_list_provider.dart';
 import 'package:positioning/provider/user/police_profile_provider.dart';
+import 'package:positioning/provider/user/report_create_provider.dart';
 import 'package:positioning/provider/user/report_detail_provider.dart';
 import 'package:positioning/provider/user/report_list_provider.dart';
+import 'package:positioning/provider/user/route_collection_list_provider.dart';
 import 'package:positioning/provider/user/user_list_provider.dart';
 import 'package:positioning/provider/user/user_profile_provider.dart';
 import 'package:positioning/ui/dashboard.dart';
@@ -65,6 +68,12 @@ class MyApp extends StatelessWidget {
               create: (_) => ReportDetailProvider()),
           ChangeNotifierProvider<ReportListProvider>(
               create: (_) => ReportListProvider()),
+          ChangeNotifierProvider<ReportCreateProvider>(
+              create: (_) => ReportCreateProvider()),
+          ChangeNotifierProvider<PointCollectionListProvider>(
+              create: (_) => PointCollectionListProvider()),
+          ChangeNotifierProvider<RouteCollectionListProvider>(
+              create: (_) => RouteCollectionListProvider()),
         ],
         child: MaterialApp(
             title: AppString.appName,

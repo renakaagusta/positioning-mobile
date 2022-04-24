@@ -41,9 +41,9 @@ class ReportService {
     }
   }
 
-  Future<String> createReport(Map<String, String> body) async {
+  Future<String> createReport(Map<String, dynamic> body) async {
     try {
-       Response response =
+      Response response =
           await _dio.post(_dio.options.baseUrl + '/reports', data: body);
       ApiResponse apiResponse = ApiResponse.fromJson(response.data);
       if (apiResponse.status == 'success') {

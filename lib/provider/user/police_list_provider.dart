@@ -29,7 +29,7 @@ class PoliceListProvider extends DisposableProvider {
         notifyListeners();
       } else {
         _state = ResultState.HasData;
-        _resultPoliceList = result;
+        _resultPoliceList = result.where((user)=>user.role == 'hospital').toList();;
         notifyListeners();
       }
     } on HttpException catch (e) {

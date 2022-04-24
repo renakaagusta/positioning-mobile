@@ -3,15 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:positioning/constant/assets.dart';
-import 'package:positioning/constant/colors.dart';
-import 'package:positioning/data/model/report.dart';
-import 'package:positioning/provider/user/report_detail_provider.dart';
-import 'package:positioning/utils/result_state.dart';
+import 'package:positioning/provider/user/report_create_provider.dart';
 import 'package:positioning/widgets/app_bar.dart';
-import 'package:positioning/widgets/card.dart';
-import 'package:positioning/widgets/elevated_button.dart';
-import 'package:positioning/widgets/outlined_button.dart';
 import 'package:provider/provider.dart';
 
 class ReportDetailArguments {
@@ -41,8 +34,8 @@ class _ReportDetailPageState extends State<ReportDetailPage> {
     });
   }
 
-  void _handleAddMarker(LatLng point) async {
-    String addressTranslate = await _getAddressFromLatLong(point);
+  void _handleDetailMarker(LatLng point) async {
+    String addressTranslate = await _getDetailressFromLatLong(point);
     setState(() {
       _markers.clear();
       _markers.add(Marker(
@@ -56,7 +49,7 @@ class _ReportDetailPageState extends State<ReportDetailPage> {
     });
   }
 
-  Future<String> _getAddressFromLatLong(LatLng position) async {
+  Future<String> _getDetailressFromLatLong(LatLng position) async {
     List<Placemark> placemarks =
         await placemarkFromCoordinates(position.latitude, position.longitude);
     Placemark place = placemarks[0];
@@ -64,10 +57,51 @@ class _ReportDetailPageState extends State<ReportDetailPage> {
   }
 
   void getReportProfile() {
-    final arguments =
-        ModalRoute.of(context)!.settings.arguments as ReportDetailArguments;
-    Provider.of<ReportDetailProvider>(context, listen: false)
-        .getReportDetail(arguments.reportId);
+    Map<String, dynamic> body = {};
+    Provider.of<ReportCreateProvider>(context, listen: false)
+        .createReport(body);
+  }
+
+  void showRegistrationModal() {
+    showModalBottomSheet(
+        context: context,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10.0),
+        ),
+        builder: (context) {
+          return StatefulBuilder(builder: ((context, setState) {
+            return Padding(
+                padding: const EdgeInsets.only(
+                    left: 20, right: 20, top: 20, bottom: 20),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        GestureDetector(
+                          onTap: () => Navigator.of(context).pop(),
+                          child:
+                              const Icon(CupertinoIcons.chevron_back, size: 30),
+                        ),
+                        Text('Pilih jenjang',
+                            style: Theme.of(context)
+                                .textTheme
+                                .titleLarge
+                                ?.copyWith(fontWeight: FontWeight.bold)),
+                        const SizedBox(
+                          width: 20,
+                        )
+                      ],
+                    ),
+                    const SizedBox(
+                      height: 30,
+                    ),
+                    
+                  ],
+                ));
+          }));
+        });
   }
 
   @override
@@ -87,131 +121,9 @@ class _ReportDetailPageState extends State<ReportDetailPage> {
         ),
         child: Scaffold(
           appBar: CustomAppBar(
-            title: 'Rumah Sakit',
+            title: 'Laporan',
           ),
-          body: Consumer<ReportDetailProvider>(
-            builder: (context, state, _) {
-              if (state.state == ResultState.Loading) {
-                return Container(
-                  height: MediaQuery.of(context).size.height - 300,
-                  width: MediaQuery.of(context).size.width,
-                  child: Center(
-                      child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Image.asset(
-                        AppAsset.welcomeIllustration,
-                        height: 200,
-                      ),
-                      const SizedBox(
-                        height: 10,
-                      ),
-                      const Text('Loading...'),
-                    ],
-                  )),
-                );
-              } else if (state.state == ResultState.NoData) {
-                return const Center(child: Text('Report not found'));
-              } else if (state.state == ResultState.HasData) {
-                Report report = state.resultReportDetail!;
-                if (_mapController != null && _markers.isEmpty) {}
-                return Stack(
-                  children: [
-                    Container(
-                        padding: const EdgeInsets.all(20),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const SizedBox(
-                              height: 30,
-                            ),
-                            Text('Email',
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .titleMedium
-                                    ?.copyWith(fontWeight: FontWeight.bold)),
-                            const SizedBox(
-                              height: 5,
-                            ),
-                            Text("-"),
-                            const SizedBox(
-                              height: 20,
-                            ),
-                            Text('Nomor HP',
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .titleMedium
-                                    ?.copyWith(fontWeight: FontWeight.bold)),
-                            const SizedBox(
-                              height: 5,
-                            ),
-                            Text("-"),
-                            const SizedBox(
-                              height: 20,
-                            ),
-                            Text('Alamat',
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .titleMedium
-                                    ?.copyWith(fontWeight: FontWeight.bold)),
-                            const SizedBox(
-                              height: 5,
-                            ),
-                            Text("-"),
-                            const SizedBox(
-                              height: 20,
-                            ),
-                            Text('Peta',
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .titleMedium
-                                    ?.copyWith(fontWeight: FontWeight.bold)),
-                            const SizedBox(
-                              height: 5,
-                            ),
-                            Container(
-                              height: 300,
-                              width: MediaQuery.of(context).size.width,
-                              child: GoogleMap(
-                                onMapCreated: _onMapCreated,
-                                initialCameraPosition: CameraPosition(
-                                  target: _center,
-                                  zoom: 12.0,
-                                ),
-                                markers: Set<Marker>.of(_markers),
-                              ),
-                            ),
-                          ],
-                        )),
-                    Positioned(
-                        bottom: 0,
-                        left: 0,
-                        child: AppCard(
-                            width: MediaQuery.of(context).size.width,
-                            content: Column(
-                              children: [
-                                AppOutlinedButton(
-                                    onPressed: () => {},
-                                    icon: Icon(CupertinoIcons.phone),
-                                    text: 'Panggilan',
-                                    color: AppColor.primaryColor),
-                                const SizedBox(
-                                  height: 5,
-                                ),
-                                AppElevatedButton(
-                                    backgroundColor: AppColor.primaryColor,
-                                    icon: Icon(CupertinoIcons.paperclip),
-                                    text: 'Buat laporan',
-                                    onPressed: () => {})
-                              ],
-                            ))),
-                  ],
-                );
-              } else {
-                return Container(child: Text('Report not found'));
-              }
-            },
-          ),
+          body: Container(),
         ));
   }
 }

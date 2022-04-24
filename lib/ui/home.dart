@@ -84,7 +84,7 @@ class _HomePageState extends State<HomePage> {
           body: Consumer<UserProfileProvider>(
             builder: (context, state, _) {
               if (state.state == ResultState.NoData) {
-                return Center(child: Text('User not found'));
+                return const Center(child: Text('User not found'));
               } else if (state.state == ResultState.Loading) {
                 return Container(
                           height: MediaQuery.of(context).size.height - 300,

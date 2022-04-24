@@ -1,13 +1,11 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:positioning/constant/assets.dart';
 import 'package:positioning/constant/colors.dart';
 import 'package:positioning/data/model/user.dart';
 import 'package:positioning/helpers/provider.dart';
 import 'package:positioning/provider/auth/auth_provider.dart';
 import 'package:positioning/provider/user/user_profile_provider.dart';
-import 'package:positioning/ui/sign_in.dart';
 import 'package:positioning/ui/sign_up.dart';
 import 'package:positioning/ui/welcome.dart';
 import 'package:positioning/utils/result_state.dart';

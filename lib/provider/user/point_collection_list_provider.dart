@@ -1,35 +1,35 @@
 import 'dart:async';
 
-import 'package:positioning/data/model/user.dart';
-import 'package:positioning/data/remote/api/user_service.dart';
+import 'package:positioning/data/model/point_collection.dart';
+import 'package:positioning/data/remote/api/point_service.dart';
 import 'package:positioning/helpers/dio.dart';
 import 'package:positioning/helpers/disposable_provider.dart';
 import 'package:positioning/helpers/exception/http_exception.dart';
 import 'package:positioning/utils/result_state.dart';
 
-class HospitalListProvider extends DisposableProvider {
-  UserService _userService = UserService(AppDio.getDio());
+class PointCollectionListProvider extends DisposableProvider {
+  PointCollectionService _pointCollectionService = PointCollectionService(AppDio.getDio());
 
   ResultState _state = ResultState.Idle;
-  List<User>? _resultHospitalList;
+  List<PointCollection>? _resultPointCollectionList;
   String? _error;
 
   String? get error => _error;
-  List<User>? get resultHospitalList => _resultHospitalList;
-  Future<dynamic> getHospitalList() => _getHospitalList();
+  List<PointCollection>? get resultPointCollectionList => _resultPointCollectionList;
+  Future<dynamic> getPointCollectionList() => _getPointCollectionList();
   ResultState get state => _state;
 
-  Future<dynamic> _getHospitalList() async {
+  Future<dynamic> _getPointCollectionList() async {
     try {
       _state = ResultState.Loading;
       notifyListeners();
-      final result = await _userService.getUserList();
+      final result = await _pointCollectionService.getPointCollectionList();
       if (result == null) {
         _state = ResultState.NoData;
         notifyListeners();
       } else {
         _state = ResultState.HasData;
-        _resultHospitalList = result.where((user)=>user.role == 'hospital').toList();
+        _resultPointCollectionList = result;
         notifyListeners();
       }
     } on HttpException catch (e) {

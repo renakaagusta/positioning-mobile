@@ -14,11 +14,11 @@ class ReportCreateProvider extends DisposableProvider {
   
   String? get reportId => _reportId;
   String? get error => _error;
-  Future<dynamic> createReport(Map<String, String> body) => _createReport(body);
+  Future<dynamic> createReport(Map<String, dynamic> body) => _createReport(body);
   
   ResultState get state => _state;
 
-  Future<dynamic> _createReport(Map<String, String> body) async {
+  Future<dynamic> _createReport(Map<String, dynamic> body) async {
     try {
       _state = ResultState.Loading;
       notifyListeners();
