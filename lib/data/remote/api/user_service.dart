@@ -28,9 +28,11 @@ class UserService {
     try {
       Response response = await _dio.get(_dio.options.baseUrl + '/users');
       ApiResponse apiResponse = ApiResponse.fromJson(response.data);
+      print("||||||||||||||||||||||||||||");
+      print(apiResponse);
       if (apiResponse.status == 'success') {
         List<User> response = apiResponse.data['users'].map<User>(
-                (news) => User.fromJson(news))
+                (user) => User.fromJson(user))
             .toList();
         return response;
       } else {

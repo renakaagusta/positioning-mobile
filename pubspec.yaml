@@ -60,6 +60,8 @@ dependencies:
   geocoding: ^2.0.4
   geolocator: 
   dropdown_search: ^2.0.1
+  flutter_polyline_points: ^1.0.0
+  
 
 dev_dependencies:
   flutter_test:

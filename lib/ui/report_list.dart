@@ -49,7 +49,6 @@ class _ReportListPageState extends State<ReportListPage> {
     return 12742 * asin(sqrt(a));
   }
 
-
   void _determinePosition() async {
     bool serviceEnabled;
     LocationPermission permission;
@@ -361,9 +360,12 @@ class _ReportListPageState extends State<ReportListPage> {
                             return const Center(
                                 child: Text('Report not found'));
                           } else if (state.state == ResultState.HasData) {
-                            List<Report> reportList = state.resultReportList!
-                                .where((report) => report.rider == 'report')
-                                .toList();
+                            User currentUser = Provider.of<UserProfileProvider>(context, listen: false).resultUserProfile!;
+                            List<Report> reportList = currentUser.role == 'rider' ? state.resultReportList!
+                                .where((report) => report.rider == currentUser.id)
+                                .toList() : state.resultReportList!
+                                .where((report) => report.handler == currentUser.id)
+                                .toList() ;
                             if (reportList.isEmpty) {
                               return Container(
                                 height:
@@ -429,7 +431,7 @@ class _ReportListPageState extends State<ReportListPage> {
                                                       children: [
                                                         SizedBox(
                                                           width: 300,
-                                                          child: Text('-',
+                                                          child: Text(reportList[index].title!,
                                                               style: Theme.of(
                                                                       context)
                                                                   .textTheme
@@ -442,7 +444,7 @@ class _ReportListPageState extends State<ReportListPage> {
                                                         const SizedBox(
                                                           height: 10,
                                                         ),
-                                                        Text('-'),
+                                                        Text(reportList[index].description!),
                                                       ],
                                                     )
                                                   ],

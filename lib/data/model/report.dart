@@ -2,6 +2,7 @@ class Report {
   String? id;
   String? description;
   String? rider;
+  String? handler;
   List<Routes>? routes;
   String? title;
   String? status;
@@ -15,6 +16,7 @@ class Report {
       {this.id,
       this.description,
       this.rider,
+      this.handler,
       this.routes,
       this.title,
       this.status,
@@ -28,6 +30,7 @@ class Report {
     id = json['id'];
     description = json['description'];
     rider = json['rider'];
+    handler = json['handler'];
     if (json['routes'] != null) {
       routes = <Routes>[];
       json['routes'].forEach((v) {
@@ -50,6 +53,7 @@ class Report {
     data['id'] = this.id;
     data['description'] = this.description;
     data['rider'] = this.rider;
+    data['handler'] = this.handler;
     if (this.routes != null) {
       data['routes'] = this.routes!.map((v) => v.toJson()).toList();
     }
