@@ -33,7 +33,7 @@ class ReportListPage extends StatefulWidget {
 
 class _ReportListPageState extends State<ReportListPage> {
   PointCollection pointCollection = PointCollection();
-  LatLng currentPosition = const LatLng(0,0);
+  LatLng currentPosition = const LatLng(0, 0);
   List<User> hospitalList = [];
   List<User> policeList = [];
 
@@ -72,12 +72,12 @@ class _ReportListPageState extends State<ReportListPage> {
     }
 
     Position position = await Geolocator.getCurrentPosition();
-   
+
     setState(() {
       currentPosition = LatLng(position.latitude, position.longitude);
     });
   }
-  
+
   void _getReportList() async {
     Provider.of<ReportListProvider>(context, listen: false).getReportList();
   }
@@ -97,35 +97,44 @@ class _ReportListPageState extends State<ReportListPage> {
 
   Future<User> _getNearestInstance(List<User> instanceList) async {
     User nearestInstance = instanceList[0];
-    final initialNearestInstancePosition = LatLng(double.parse(nearestInstance.meta['location']['static']['latitude']),double.parse(nearestInstance.meta['location']['static']['longitude']));
-    double nearestDistance = calculateDistance(currentPosition, initialNearestInstancePosition);
+    final initialNearestInstancePosition = LatLng(
+        double.parse(nearestInstance.meta['location']['static']['latitude']),
+        double.parse(nearestInstance.meta['location']['static']['longitude']));
+    double nearestDistance =
+        calculateDistance(currentPosition, initialNearestInstancePosition);
 
-    instanceList.forEachIndexed((index, instance){
-      final instancePosition = LatLng(double.parse(instance.meta['location']['static']['latitude']),double.parse(instance.meta['location']['static']['longitude']));
+    instanceList.forEachIndexed((index, instance) {
+      final instancePosition = LatLng(
+          double.parse(instance.meta['location']['static']['latitude']),
+          double.parse(instance.meta['location']['static']['longitude']));
       final distance = calculateDistance(currentPosition, instancePosition);
-      if(distance < nearestDistance) {
+      if (distance < nearestDistance) {
         nearestDistance = distance;
         nearestInstance = instance;
       }
     });
-    
+
     return nearestInstance;
   }
 
   Future<Data> _getPointRepresentation(LatLng position) async {
     Data representationPoint = pointCollection.data![0];
-    final initialRepresentationPointPosition = LatLng(representationPoint.geometry!.coordinates![1], representationPoint.geometry!.coordinates![0]);
-    double representationDistance = calculateDistance(position, initialRepresentationPointPosition);
+    final initialRepresentationPointPosition = LatLng(
+        representationPoint.geometry!.coordinates![1],
+        representationPoint.geometry!.coordinates![0]);
+    double representationDistance =
+        calculateDistance(position, initialRepresentationPointPosition);
 
-    pointCollection.data!.forEachIndexed((index, point){
-      final instancePosition = LatLng(point.geometry!.coordinates![1],point.geometry!.coordinates![0]);
+    pointCollection.data!.forEachIndexed((index, point) {
+      final instancePosition = LatLng(
+          point.geometry!.coordinates![1], point.geometry!.coordinates![0]);
       final distance = calculateDistance(position, instancePosition);
-      if(distance < representationDistance) {
+      if (distance < representationDistance) {
         representationDistance = distance;
         representationPoint = point;
       }
     });
-    
+
     return representationPoint;
   }
 
@@ -136,7 +145,7 @@ class _ReportListPageState extends State<ReportListPage> {
           borderRadius: BorderRadius.circular(10.0),
         ),
         builder: (context) {
-            String reportType = 'Traffic Jam';
+          String reportType = 'Traffic Jam';
           return StatefulBuilder(builder: ((context, setState) {
             return Padding(
                 padding: const EdgeInsets.only(
@@ -203,14 +212,22 @@ class _ReportListPageState extends State<ReportListPage> {
                           Data userRepresentationPoint = Data();
                           Data instanceRepresentationPoint = Data();
 
-                          if(reportType == 'Kecelakaan') {
-                            nearestInstance = await _getNearestInstance(hospitalList);
+                          if (reportType == 'Kecelakaan') {
+                            nearestInstance =
+                                await _getNearestInstance(hospitalList);
                           } else {
-                            nearestInstance = await _getNearestInstance(policeList);
+                            nearestInstance =
+                                await _getNearestInstance(policeList);
                           }
 
-                          userRepresentationPoint = await _getPointRepresentation(currentPosition);
-                          instanceRepresentationPoint = await _getPointRepresentation(LatLng(double.parse(nearestInstance.meta['location']['static']['latitude']), double.parse(nearestInstance.meta['location']['static']['longitude'])));
+                          userRepresentationPoint =
+                              await _getPointRepresentation(currentPosition);
+                          instanceRepresentationPoint =
+                              await _getPointRepresentation(LatLng(
+                                  double.parse(nearestInstance.meta['location']
+                                      ['static']['latitude']),
+                                  double.parse(nearestInstance.meta['location']
+                                      ['static']['longitude'])));
 
                           print('USER REPRESENTATION POINT: ');
                           print(userRepresentationPoint.properties!.text);
@@ -218,21 +235,36 @@ class _ReportListPageState extends State<ReportListPage> {
                           print('INSTANCE REPRESENTATION POINT: ');
                           print(instanceRepresentationPoint.properties!.text);
 
-                          if(int.parse(userRepresentationPoint.properties!.text!) >= int.parse(instanceRepresentationPoint.properties!.text!)) {
-                            userRepresentationPoint = pointCollection!.data!.firstWhere((point) => point.properties!.text == '0');
+                          if (int.parse(
+                                  userRepresentationPoint.properties!.text!) >=
+                              int.parse(instanceRepresentationPoint
+                                  .properties!.text!)) {
+                            userRepresentationPoint = pointCollection!.data!
+                                .firstWhere(
+                                    (point) => point.properties!.text == '0');
                           }
 
-                          final currentUser = Provider.of<UserProfileProvider>(context, listen: false).resultUserProfile;
+                          final currentUser = Provider.of<UserProfileProvider>(
+                                  context,
+                                  listen: false)
+                              .resultUserProfile;
                           DateTime now = DateTime.now();
-                          String formattedDate = DateFormat("EEEE, d MMMM yyyy", "id_ID").format(now);
-                          final title = 'Laporan ' + (reportType == 'Traffic Jam' ? 'Kemacetan' : 'Kecelakaan');
+                          String formattedDate =
+                              DateFormat("EEEE, d MMMM yyyy", "id_ID")
+                                  .format(now);
+                          final title = 'Laporan ' +
+                              (reportType == 'Traffic Jam'
+                                  ? 'Kemacetan'
+                                  : 'Kecelakaan');
                           final description = formattedDate;
                           final category = reportType;
                           final rider = currentUser!.id;
-                          final handler = nearestInstance.id;  
+                          final handler = nearestInstance.id;
                           final type = 'Real';
-                          final startingPoint = userRepresentationPoint.properties!.text;
-                          final endPoint = instanceRepresentationPoint.properties!.text;
+                          final startingPoint =
+                              userRepresentationPoint.properties!.text;
+                          final endPoint =
+                              instanceRepresentationPoint.properties!.text;
                           final createdAt = DateTime.now();
 
                           Map<String, String> body = {
@@ -247,11 +279,19 @@ class _ReportListPageState extends State<ReportListPage> {
                             'createdAt': createdAt.toUtc().toString(),
                           };
 
-                          await Provider.of<ReportCreateProvider>(context, listen: false).createReport(body);
+                          await Provider.of<ReportCreateProvider>(context,
+                                  listen: false)
+                              .createReport(body);
 
-                          final reportId = Provider.of<ReportCreateProvider>(context, listen:false).reportId;
-                          
-                          Navigator.of(context).pushNamed(ReportDetailPage.routeName, arguments: ReportDetailArguments(reportId: reportId!));
+                          final reportId = Provider.of<ReportCreateProvider>(
+                                  context,
+                                  listen: false)
+                              .reportId;
+
+                          Navigator.of(context).pushNamed(
+                              ReportDetailPage.routeName,
+                              arguments:
+                                  ReportDetailArguments(reportId: reportId!));
                         })
                   ],
                 ));
@@ -281,6 +321,12 @@ class _ReportListPageState extends State<ReportListPage> {
           systemNavigationBarIconBrightness: Brightness.dark,
         ),
         child: Scaffold(
+          floatingActionButton: Container(
+              width: 60,
+              height: 60,
+              child: AppElevatedButton(
+                  icon: const Icon(CupertinoIcons.add, size: 16),
+                  onPressed: () => _showSelectReportTypeModal())),
           body: Consumer<PointCollectionListProvider>(
               builder: (context, state, _) {
             WidgetsBinding.instance!.addPostFrameCallback((_) {
@@ -309,7 +355,9 @@ class _ReportListPageState extends State<ReportListPage> {
                   }
                 });
 
-                if(hospitalList.isNotEmpty && policeList.isNotEmpty && currentPosition != null) {
+                if (hospitalList.isNotEmpty &&
+                    policeList.isNotEmpty &&
+                    currentPosition != null) {
                   _getNearestInstance(hospitalList);
                 }
 
@@ -360,12 +408,20 @@ class _ReportListPageState extends State<ReportListPage> {
                             return const Center(
                                 child: Text('Report not found'));
                           } else if (state.state == ResultState.HasData) {
-                            User currentUser = Provider.of<UserProfileProvider>(context, listen: false).resultUserProfile!;
-                            List<Report> reportList = currentUser.role == 'rider' ? state.resultReportList!
-                                .where((report) => report.rider == currentUser.id)
-                                .toList() : state.resultReportList!
-                                .where((report) => report.handler == currentUser.id)
-                                .toList() ;
+                            User currentUser = Provider.of<UserProfileProvider>(
+                                    context,
+                                    listen: false)
+                                .resultUserProfile!;
+                            List<Report> reportList =
+                                currentUser.role == 'rider'
+                                    ? state.resultReportList!
+                                        .where((report) =>
+                                            report.rider == currentUser.id)
+                                        .toList()
+                                    : state.resultReportList!
+                                        .where((report) =>
+                                            report.handler == currentUser.id)
+                                        .toList();
                             if (reportList.isEmpty) {
                               return Container(
                                 height:
@@ -431,7 +487,9 @@ class _ReportListPageState extends State<ReportListPage> {
                                                       children: [
                                                         SizedBox(
                                                           width: 300,
-                                                          child: Text(reportList[index].title!,
+                                                          child: Text(
+                                                              reportList[index]
+                                                                  .title!,
                                                               style: Theme.of(
                                                                       context)
                                                                   .textTheme
@@ -444,7 +502,8 @@ class _ReportListPageState extends State<ReportListPage> {
                                                         const SizedBox(
                                                           height: 10,
                                                         ),
-                                                        Text(reportList[index].description!),
+                                                        Text(reportList[index]
+                                                            .description!),
                                                       ],
                                                     )
                                                   ],

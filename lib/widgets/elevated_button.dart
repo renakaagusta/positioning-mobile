@@ -5,7 +5,7 @@ import 'package:flutter/widgets.dart';
 import 'package:positioning/constant/colors.dart';
 
 class AppElevatedButton extends StatelessWidget {
-  String text;
+  String? text;
   Icon? icon;
   Color? color;
   Color? backgroundColor;
@@ -13,7 +13,7 @@ class AppElevatedButton extends StatelessWidget {
   bool? loading;
 
   AppElevatedButton(
-      {required this.text,
+      {this.text,
       this.icon,
       this.color = Colors.white,
       this.backgroundColor = AppColor.primaryColor,
@@ -33,13 +33,18 @@ class AppElevatedButton extends StatelessWidget {
 
     if (icon != null) {
       content.add(icon!);
-      content.add(const SizedBox(
+      if(text != null) {
+        content.add(const SizedBox(
         width: 10,
       ));
+      }
     }
 
-    content.add(Text(text,
+    if(text!= null) {
+      content.add(Text(text!,
         style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: color)));
+
+    }
 
     return ElevatedButton(
       onPressed: onPressed,
