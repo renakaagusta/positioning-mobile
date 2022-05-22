@@ -10,6 +10,7 @@ class Report {
   String? category;
   String? endPoint;
   String? type;
+  List<String>? rejectedBy;
   String? startingPoint;
 
   Report(
@@ -24,7 +25,8 @@ class Report {
       this.category,
       this.endPoint,
       this.type,
-      this.startingPoint});
+      this.startingPoint,
+      this.rejectedBy});
 
   Report.fromJson(Map<String, dynamic> json) {
     id = json['id'];
@@ -46,6 +48,9 @@ class Report {
     endPoint = json['endPoint'];
     type = json['type'];
     startingPoint = json['startingPoint'];
+    if(json["rejectedBy"] != null) {
+      rejectedBy = (json["rejectedBy"] as List).map((rejectedBy)=>rejectedBy as String).toList();
+    }
   }
 
   Map<String, dynamic> toJson() {

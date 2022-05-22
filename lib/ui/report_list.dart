@@ -34,6 +34,7 @@ class ReportListPage extends StatefulWidget {
 class _ReportListPageState extends State<ReportListPage> {
   PointCollection pointCollection = PointCollection();
   LatLng currentPosition = const LatLng(0, 0);
+  User currentUser = User();
   List<User> hospitalList = [];
   List<User> policeList = [];
 
@@ -303,6 +304,11 @@ class _ReportListPageState extends State<ReportListPage> {
   void initState() {
     super.initState();
     WidgetsBinding.instance?.addPostFrameCallback((_) {
+      setState(() {
+        currentUser = Provider.of<UserProfileProvider>(
+                                  context,
+                                  listen: false).resultUserProfile!;
+      });
       _determinePosition();
       _getPointCollectionList();
       _getReportList();
@@ -324,9 +330,9 @@ class _ReportListPageState extends State<ReportListPage> {
           floatingActionButton: Container(
               width: 60,
               height: 60,
-              child: AppElevatedButton(
+              child:currentUser.role == "rider" ?  AppElevatedButton(
                   icon: const Icon(CupertinoIcons.add, size: 16),
-                  onPressed: () => _showSelectReportTypeModal())),
+                  onPressed: () => _showSelectReportTypeModal()):  Container()),
           body: Consumer<PointCollectionListProvider>(
               builder: (context, state, _) {
             WidgetsBinding.instance!.addPostFrameCallback((_) {
@@ -441,14 +447,16 @@ class _ReportListPageState extends State<ReportListPage> {
                                     const SizedBox(
                                       height: 20,
                                     ),
-                                    SizedBox(
-                                        width: 160,
-                                        child: AppElevatedButton(
-                                            icon: const Icon(CupertinoIcons.add,
-                                                size: 16),
-                                            text: 'Buat laporan',
-                                            onPressed: () =>
-                                                _showSelectReportTypeModal()))
+                                    if (currentUser.role == "rider")
+                                      SizedBox(
+                                          width: 160,
+                                          child: AppElevatedButton(
+                                              icon: const Icon(
+                                                  CupertinoIcons.add,
+                                                  size: 16),
+                                              text: 'Buat laporan',
+                                              onPressed: () =>
+                                                  _showSelectReportTypeModal()))
                                   ],
                                 )),
                               );

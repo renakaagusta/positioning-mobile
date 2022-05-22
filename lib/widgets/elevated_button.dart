@@ -33,17 +33,17 @@ class AppElevatedButton extends StatelessWidget {
 
     if (icon != null) {
       content.add(icon!);
-      if(text != null) {
+      if (text != null) {
         content.add(const SizedBox(
-        width: 10,
-      ));
+          width: 10,
+        ));
       }
     }
 
-    if(text!= null) {
+    if (text != null) {
       content.add(Text(text!,
-        style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: color)));
-
+          style:
+              Theme.of(context).textTheme.bodyLarge?.copyWith(color: color)));
     }
 
     return ElevatedButton(
@@ -53,8 +53,10 @@ class AppElevatedButton extends StatelessWidget {
         children: content,
       ),
       style: ElevatedButton.styleFrom(
-        primary: backgroundColor,
-      ),
+          primary: backgroundColor,
+          shape: new RoundedRectangleBorder(
+            borderRadius: new BorderRadius.circular(20.0),
+          )),
     );
   }
 }

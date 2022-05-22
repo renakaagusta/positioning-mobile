@@ -15,6 +15,7 @@ import 'package:positioning/provider/user/police_profile_provider.dart';
 import 'package:positioning/provider/user/report_create_provider.dart';
 import 'package:positioning/provider/user/report_detail_provider.dart';
 import 'package:positioning/provider/user/report_list_provider.dart';
+import 'package:positioning/provider/user/report_update_provider.dart';
 import 'package:positioning/provider/user/route_collection_list_provider.dart';
 import 'package:positioning/provider/user/user_list_provider.dart';
 import 'package:positioning/provider/user/user_profile_provider.dart';
@@ -70,6 +71,8 @@ class MyApp extends StatelessWidget {
               create: (_) => ReportListProvider()),
           ChangeNotifierProvider<ReportCreateProvider>(
               create: (_) => ReportCreateProvider()),
+          ChangeNotifierProvider<ReportUpdateProvider>(
+              create: (_) => ReportUpdateProvider()),
           ChangeNotifierProvider<PointCollectionListProvider>(
               create: (_) => PointCollectionListProvider()),
           ChangeNotifierProvider<RouteCollectionListProvider>(

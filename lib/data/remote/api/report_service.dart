@@ -55,4 +55,19 @@ class ReportService {
       rethrow;
     }
   }
+
+  Future<String> updateReport(Map<String, dynamic> body, String id) async {
+    try {
+      Response response =
+          await _dio.post(_dio.options.baseUrl + '/reports/' + id, data: body);
+      ApiResponse apiResponse = ApiResponse.fromJson(response.data);
+      if (apiResponse.status == 'success') {
+        return apiResponse.data['reportId'];
+      } else {
+        throw HttpException(apiResponse.error?? apiResponse.message!);
+      }
+    } catch (error) {
+      rethrow;
+    }
+  }
 }

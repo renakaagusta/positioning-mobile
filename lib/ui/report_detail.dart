@@ -1,22 +1,34 @@
 import 'dart:math' show cos, sqrt, asin;
 
+import 'package:collection/collection.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:intl/intl.dart';
 import 'package:positioning/constant/assets.dart';
+import 'package:positioning/constant/colors.dart';
+import 'package:positioning/data/model/point_collection.dart';
 import 'package:positioning/data/model/user.dart';
 import 'package:positioning/provider/user/point_collection_list_provider.dart';
+import 'package:positioning/provider/user/police_list_provider.dart';
 import 'package:positioning/provider/user/report_detail_provider.dart';
+import 'package:positioning/provider/user/report_list_provider.dart';
+import 'package:positioning/provider/user/report_update_provider.dart';
 import 'package:positioning/provider/user/user_list_provider.dart';
 import 'package:positioning/provider/user/user_profile_provider.dart';
 import 'package:positioning/utils/result_state.dart';
 import 'package:positioning/widgets/app_bar.dart';
 import 'package:positioning/widgets/card.dart';
+import 'package:positioning/widgets/elevated_button.dart';
+import 'package:positioning/widgets/outlined_button.dart';
 import 'package:provider/provider.dart';
+
+import '../provider/user/hospital_list_provider.dart';
 
 class ReportDetailArguments {
   String reportId;
@@ -47,6 +59,11 @@ class _ReportDetailPageState extends State<ReportDetailPage> {
   List<LatLng> polylineCoordinates = [];
   PolylinePoints polylinePoints = PolylinePoints();
   String googleAPiKey = dotenv.env['API_URL'] ?? '';
+  LatLng riderCurrentPosition = const LatLng(0, 0);
+  PointCollection pointCollection = PointCollection();
+  List<User> hospitalList = [];
+  List<User> policeList = [];
+  List<User> userList = [];
 
   void _onMapCreated(GoogleMapController controller) {
     setState(() {
@@ -140,12 +157,83 @@ class _ReportDetailPageState extends State<ReportDetailPage> {
         });
   }
 
+  Future<User> _getNearestInstance(
+      List<User> instanceList, List<String> rejectedBy, String handler) async {
+    User nearestInstance = instanceList[0];
+    final initialNearestInstancePosition = LatLng(
+        double.parse(nearestInstance.meta['location']['static']['latitude']),
+        double.parse(nearestInstance.meta['location']['static']['longitude']));
+    double nearestDistance =
+        calculateDistance(riderCurrentPosition, initialNearestInstancePosition);
+
+    instanceList.forEachIndexed((index, instance) {
+      if (rejectedBy.indexOf(instance.id!) == -1 && instance.id != handler) {
+        final instancePosition = LatLng(
+            double.parse(instance.meta['location']['static']['latitude']),
+            double.parse(instance.meta['location']['static']['longitude']));
+        final distance =
+            calculateDistance(riderCurrentPosition, instancePosition);
+        if (distance < nearestDistance) {
+          nearestDistance = distance;
+          nearestInstance = instance;
+        }
+      }
+    });
+
+    return nearestInstance;
+  }
+
+  Future<Data> _getPointRepresentation(LatLng position) async {
+    Data representationPoint = pointCollection.data![0];
+    final initialRepresentationPointPosition = LatLng(
+        representationPoint.geometry!.coordinates![1],
+        representationPoint.geometry!.coordinates![0]);
+    double representationDistance =
+        calculateDistance(position, initialRepresentationPointPosition);
+
+    pointCollection.data!.forEachIndexed((index, point) {
+      final instancePosition = LatLng(
+          point.geometry!.coordinates![1], point.geometry!.coordinates![0]);
+      final distance = calculateDistance(position, instancePosition);
+      if (distance < representationDistance) {
+        representationDistance = distance;
+        representationPoint = point;
+      }
+    });
+
+    return representationPoint;
+  }
+
+  void getHospitalList() async {
+    await Provider.of<HospitalListProvider>(context, listen: false).getHospitalList();
+    setState(() {
+      hospitalList = Provider.of<HospitalListProvider>(context, listen: false).resultHospitalList!;
+    });
+  }
+
+  void getPoliceList() async {
+    await Provider.of<PoliceListProvider>(context, listen: false).getPoliceList();
+    setState(() {
+      policeList = Provider.of<PoliceListProvider>(context, listen: false).resultPoliceList!;
+    });
+  }
+
+  void getPointCollectionList() async {
+    await Provider.of<PointCollectionListProvider>(context, listen: false).getPointCollectionList();
+    setState(() {
+      pointCollection = Provider.of<PointCollectionListProvider>(context, listen: false).resultPointCollectionList![0];
+    });
+  }
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance?.addPostFrameCallback((_) {
       getReportData();
       getUserList();
+      getHospitalList();
+      getPoliceList();
+      getPointCollectionList();
     });
   }
 
@@ -338,10 +426,233 @@ class _ReportDetailPageState extends State<ReportDetailPage> {
                                   const SizedBox(
                                     height: 20,
                                   ),
-                                  /*AppOutlinedButton(
+                                  AppElevatedButton(
+                                      color: Colors.white,
+                                      text: 'Setujui',
+                                      onPressed: () async {
+                                        User nearestInstance = User();
+                                        Data userRepresentationPoint = Data();
+                                        Data instanceRepresentationPoint =
+                                            Data();
+
+                                        if (report.category == 'Kecelakaan') {
+                                          nearestInstance =
+                                              await _getNearestInstance(
+                                                  hospitalList,
+                                                  report.rejectedBy != null ? report.rejectedBy! : [],
+                                                  report.handler!);
+                                        } else {
+                                          nearestInstance =
+                                              await _getNearestInstance(
+                                                  policeList,
+                                                  report.rejectedBy != null ? report.rejectedBy! : [],
+                                                  report.handler!);
+                                        }
+
+                                        userRepresentationPoint =
+                                            await _getPointRepresentation(
+                                                riderCurrentPosition);
+
+                                        instanceRepresentationPoint =
+                                            await _getPointRepresentation(
+                                                LatLng(
+                                                    double.parse(nearestInstance
+                                                            .meta['location']
+                                                        ['static']['latitude']),
+                                                    double.parse(nearestInstance
+                                                                    .meta[
+                                                                'location']
+                                                            ['static']
+                                                        ['longitude'])));
+
+                                        print('USER REPRESENTATION POINT: ');
+                                        print(userRepresentationPoint
+                                            .properties!.text);
+
+                                        print(
+                                            'INSTANCE REPRESENTATION POINT: ');
+                                        print(instanceRepresentationPoint
+                                            .properties!.text);
+
+                                        if (int.parse(userRepresentationPoint
+                                                .properties!.text!) >=
+                                            int.parse(
+                                                instanceRepresentationPoint
+                                                    .properties!.text!)) {
+                                          userRepresentationPoint =
+                                              pointCollection!
+                                                  .data!
+                                                  .firstWhere((point) =>
+                                                      point.properties!.text ==
+                                                      '0');
+                                        }
+
+                                        final currentUser =
+                                            Provider.of<UserProfileProvider>(
+                                                    context,
+                                                    listen: false)
+                                                .resultUserProfile;
+                                        DateTime now = DateTime.now();
+                                        String formattedDate = DateFormat(
+                                                "EEEE, d MMMM yyyy", "id_ID")
+                                            .format(now);
+                                        final title = 'Laporan ' +
+                                            (report.category == 'Traffic Jam'
+                                                ? 'Kemacetan'
+                                                : 'Kecelakaan');
+                                        final description = formattedDate;
+                                        final category = report.category;
+                                        final rider = report.rider;
+                                        final handler = report.handler;
+                                        final type = 'Real';
+                                        final startingPoint = report.startingPoint;
+                                        final endPoint = report.endPoint;
+                                        final createdAt = DateTime.now();
+
+                                        Map<String, String> body = {
+                                          'title': report.title!,
+                                          'description': report.description!,
+                                          'category': report.category!,
+                                          'rider': report.rider!,
+                                          'handler': handler!,
+                                          'type': type,
+                                          'startingPoint': startingPoint!,
+                                          'endPoint': endPoint!,
+                                          'createdAt':
+                                              createdAt.toUtc().toString(),
+                                              'status': 'Confirmed'
+                                        };
+
+                                        await Provider.of<ReportUpdateProvider>(
+                                                context,
+                                                listen: false)
+                                            .updateReport(body, report.id!);
+
+                                            
+                                        EasyLoading.showInfo("Laporan disetujui");
+
+                                        await Provider.of<ReportListProvider>(
+                                                context,
+                                                listen: false)
+                                                .getReportList();
+
+                                        Navigator.of(context).pop();
+                                      }),
+                                  AppOutlinedButton(
                                       color: AppColor.primaryColor,
                                       text: 'Batalkan laporan',
-                                      onPressed: () => {})*/
+                                      onPressed: () async {
+                                        User nearestInstance = User();
+                                        Data userRepresentationPoint = Data();
+                                        Data instanceRepresentationPoint =
+                                            Data();
+
+                                        if (report.category == 'Kecelakaan') {
+                                          nearestInstance =
+                                              await _getNearestInstance(
+                                                  hospitalList,
+                                                  report.rejectedBy != null ? report.rejectedBy! : [],
+                                                  report.handler!);
+                                        } else {
+                                          nearestInstance =
+                                              await _getNearestInstance(
+                                                  policeList,
+                                                  report.rejectedBy != null ? report.rejectedBy! : [],
+                                                  report.handler!);
+                                        }
+
+                                        userRepresentationPoint =
+                                            await _getPointRepresentation(
+                                                riderCurrentPosition);
+
+                                        instanceRepresentationPoint =
+                                            await _getPointRepresentation(
+                                                LatLng(
+                                                    double.parse(nearestInstance
+                                                            .meta['location']
+                                                        ['static']['latitude']),
+                                                    double.parse(nearestInstance
+                                                                    .meta[
+                                                                'location']
+                                                            ['static']
+                                                        ['longitude'])));
+
+                                        print('USER REPRESENTATION POINT: ');
+                                        print(userRepresentationPoint
+                                            .properties!.text);
+
+                                        print(
+                                            'INSTANCE REPRESENTATION POINT: ');
+                                        print(instanceRepresentationPoint
+                                            .properties!.text);
+
+                                        if (int.parse(userRepresentationPoint
+                                                .properties!.text!) >=
+                                            int.parse(
+                                                instanceRepresentationPoint
+                                                    .properties!.text!)) {
+                                          userRepresentationPoint =
+                                              pointCollection!
+                                                  .data!
+                                                  .firstWhere((point) =>
+                                                      point.properties!.text ==
+                                                      '0');
+                                        }
+
+                                        final currentUser =
+                                            Provider.of<UserProfileProvider>(
+                                                    context,
+                                                    listen: false)
+                                                .resultUserProfile;
+                                        DateTime now = DateTime.now();
+                                        String formattedDate = DateFormat(
+                                                "EEEE, d MMMM yyyy", "id_ID")
+                                            .format(now);
+                                        final title = 'Laporan ' +
+                                            (report.category == 'Traffic Jam'
+                                                ? 'Kemacetan'
+                                                : 'Kecelakaan');
+                                        final description = formattedDate;
+                                        final category = report.category;
+                                        final rider = report.rider;
+                                        final handler = nearestInstance.id;
+                                        final type = 'Real';
+                                        final startingPoint =
+                                            userRepresentationPoint
+                                                .properties!.text;
+                                        final endPoint =
+                                            instanceRepresentationPoint
+                                                .properties!.text;
+                                        final createdAt = DateTime.now();
+
+                                        Map<String, String> body = {
+                                          'title': report.title!,
+                                          'description': report.description!,
+                                          'category': report.category!,
+                                          'rider': report.rider!,
+                                          'handler': handler!,
+                                          'type': type,
+                                          'startingPoint': startingPoint!,
+                                          'endPoint': endPoint!,
+                                          'createdAt':
+                                              createdAt.toUtc().toString(),
+                                              'status': 'Rejected'
+                                        };
+
+                                        EasyLoading.showInfo("Laporan ditolak");
+
+                                        await Provider.of<ReportUpdateProvider>(
+                                                context,
+                                                listen: false)
+                                            .updateReport(body,report.id!);
+                                        
+                                        await Provider.of<ReportListProvider>(
+                                                context,
+                                                listen: false)
+                                                .getReportList();
+
+                                        Navigator.of(context).pop();
+                                      })
                                 ],
                               ))),
                     ],

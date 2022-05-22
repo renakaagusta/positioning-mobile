@@ -6,7 +6,7 @@
   <uses-permission android:name="android.permission.INTERNET" />
 
    <application
-        android:label="PPDB"
+        android:label="HAFFICE"
         android:icon="@mipmap/launcher_icon">
         <meta-data android:name="com.google.android.geo.API_KEY"
                android:value="AIzaSyDs_SqWMa9_8AeTw4d6Li94aMqO3zNvxZs"/>

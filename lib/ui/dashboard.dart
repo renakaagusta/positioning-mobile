@@ -211,13 +211,13 @@ class _DashboardPageState extends State<DashboardPage> {
                                     height: 50.0,
                                     child: Column(children: [
                                       Icon(CupertinoIcons.paperclip,
-                                          color: (currentPage == 3)
+                                          color: (currentPage ==1)
                                               ? AppColor.primaryColor
                                               : Colors.black54),
                                       Text('Laporan',
                                           style: TextStyle(
                                               fontSize: 12.0,
-                                              color: (currentPage == 3)
+                                              color: (currentPage == 1)
                                                   ? AppColor.primaryColor
                                                   : Colors.black54))
                                     ])))),
