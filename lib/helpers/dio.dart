@@ -9,11 +9,9 @@ class AppDio {
     late Dio dio;
     BaseOptions options = BaseOptions(
       baseUrl: dotenv.env['API_URL'] ?? "http://10.0.2.2:3000",
-      contentType: Headers.jsonContentType,
-      responseType: ResponseType.json,
-      receiveDataWhenStatusError: false,
+      receiveDataWhenStatusError: true,
       connectTimeout: 30000,
-      receiveTimeout: 3000,
+      receiveTimeout: 30000,
     );
     dio = Dio(options)..interceptors.add(Logging());
     return dio;

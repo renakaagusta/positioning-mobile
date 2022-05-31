@@ -10,18 +10,26 @@ class AuthService {
     _dio = dio;
   }
 
-  Future<Authentication> signIn(Map<String, String> body) async {
+  Future<Authentication?> signIn(Map<String, String> body) async {
     try {
-       Response response =
-          await _dio.post(_dio.options.baseUrl + '/authentications', data: body);
-      ApiResponse apiResponse = ApiResponse.fromJson(response.data);
-      if (apiResponse.status == 'success') {
-        return Authentication.fromJson(apiResponse.data);
+      Response response = await _dio
+          .post(_dio.options.baseUrl + '/authentications', data: body);
+      if (response.statusCode == 201) {
+        ApiResponse apiResponse = ApiResponse.fromJson(response.data);
+        if (apiResponse.status == 'success') {
+          return Authentication.fromJson(apiResponse.data);
+        } else {
+          throw HttpException(apiResponse.error ?? apiResponse.message!);
+        }
       } else {
-        throw HttpException(apiResponse.error ?? apiResponse.message!);
+        throw HttpException("Username atau password salah");
       }
-    } catch (error) {
-      rethrow;
+    } catch (e) {
+      if (e is DioError) {
+        throw HttpException("Username atau password salah");
+      } else {
+        throw HttpException("Username atau password salah");
+      }
     }
   }
 }

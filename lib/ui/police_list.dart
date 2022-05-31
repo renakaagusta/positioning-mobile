@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:positioning/constant/assets.dart';
 import 'package:positioning/data/model/user.dart';
-import 'package:positioning/provider/user/hospital_list_provider.dart';
+import 'package:positioning/provider/user/police_list_provider.dart';
 import 'package:positioning/provider/user/user_list_provider.dart';
 import 'package:positioning/ui/police_detail.dart';
 import 'package:positioning/utils/result_state.dart';
@@ -20,14 +20,14 @@ class PoliceListPage extends StatefulWidget {
 }
 
 class _PoliceListPageState extends State<PoliceListPage> {
-  void getHospitalList() async {
-    Provider.of<HospitalListProvider>(context, listen: false).getHospitalList();
+  void getPoliceList() async {
+    Provider.of<PoliceListProvider>(context, listen: false).getPoliceList();
   }
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance?.addPostFrameCallback((_) => getHospitalList());
+    WidgetsBinding.instance?.addPostFrameCallback((_) => getPoliceList());
   }
 
   @override
@@ -60,7 +60,7 @@ class _PoliceListPageState extends State<PoliceListPage> {
                               ?.copyWith(fontWeight: FontWeight.bold)),
                     ],
                   ),
-                  Consumer<HospitalListProvider>(
+                  Consumer<PoliceListProvider>(
                     builder: (context, state, _) {
                       if (state.state == ResultState.Loading) {
                         return Container(
@@ -99,7 +99,7 @@ class _PoliceListPageState extends State<PoliceListPage> {
                           )),
                         );
                       } else if (state.state == ResultState.HasData) {
-                        List<User> policeList = state.resultHospitalList!
+                        List<User> policeList = state.resultPoliceList!
                             .where((user) => user.role == 'police')
                             .toList();
                         if (policeList.isEmpty) {

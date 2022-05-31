@@ -6,7 +6,7 @@ class Report {
   List<Routes>? routes;
   String? title;
   String? status;
-  CreatedAt? createdAt;
+  DateTime? createdAt;
   String? category;
   String? endPoint;
   String? type;
@@ -41,9 +41,7 @@ class Report {
     }
     title = json['title'];
     status = json['status'];
-    createdAt = json['createdAt'] != null
-        ? new CreatedAt.fromJson(json['createdAt'])
-        : null;
+    createdAt = DateTime.fromMillisecondsSinceEpoch(json['createdAt']['_seconds'] * 1000);
     category = json['category'];
     endPoint = json['endPoint'];
     type = json['type'];
@@ -65,7 +63,7 @@ class Report {
     data['title'] = this.title;
     data['status'] = this.status;
     if (this.createdAt != null) {
-      data['createdAt'] = this.createdAt!.toJson();
+      //data['createdAt'] = this.createdAt!.toJson();
     }
     data['category'] = this.category;
     data['endPoint'] = this.endPoint;

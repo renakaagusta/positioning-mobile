@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:collection/collection.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -74,9 +76,11 @@ class _ReportListPageState extends State<ReportListPage> {
 
     Position position = await Geolocator.getCurrentPosition();
 
-    setState(() {
-      currentPosition = LatLng(position.latitude, position.longitude);
-    });
+    if (mounted) {
+      setState(() {
+        currentPosition = LatLng(position.latitude, position.longitude);
+      });
+    }
   }
 
   void _getReportList() async {
@@ -213,7 +217,7 @@ class _ReportListPageState extends State<ReportListPage> {
                           Data userRepresentationPoint = Data();
                           Data instanceRepresentationPoint = Data();
 
-                          if (reportType == 'Kecelakaan') {
+                          if (reportType == 'Accident') {
                             nearestInstance =
                                 await _getNearestInstance(hospitalList);
                           } else {
@@ -305,11 +309,12 @@ class _ReportListPageState extends State<ReportListPage> {
     super.initState();
     WidgetsBinding.instance?.addPostFrameCallback((_) {
       setState(() {
-        currentUser = Provider.of<UserProfileProvider>(
-                                  context,
-                                  listen: false).resultUserProfile!;
+        currentUser = Provider.of<UserProfileProvider>(context, listen: false)
+            .resultUserProfile!;
       });
-      _determinePosition();
+      Timer.periodic(new Duration(seconds: 1), (timer) {
+        _determinePosition();
+      });
       _getPointCollectionList();
       _getReportList();
       _getHospitalList();
@@ -330,9 +335,11 @@ class _ReportListPageState extends State<ReportListPage> {
           floatingActionButton: Container(
               width: 60,
               height: 60,
-              child:currentUser.role == "rider" ?  AppElevatedButton(
-                  icon: const Icon(CupertinoIcons.add, size: 16),
-                  onPressed: () => _showSelectReportTypeModal()):  Container()),
+              child: currentUser.role == "rider"
+                  ? AppElevatedButton(
+                      icon: const Icon(CupertinoIcons.add, size: 16),
+                      onPressed: () => _showSelectReportTypeModal())
+                  : Container()),
           body: Consumer<PointCollectionListProvider>(
               builder: (context, state, _) {
             WidgetsBinding.instance!.addPostFrameCallback((_) {
@@ -512,6 +519,12 @@ class _ReportListPageState extends State<ReportListPage> {
                                                         ),
                                                         Text(reportList[index]
                                                             .description!),
+                                                        const SizedBox(
+                                                          height: 10,
+                                                        ),
+                                                        Text(reportList[index]
+                                                            .createdAt
+                                                            .toString()),
                                                       ],
                                                     )
                                                   ],

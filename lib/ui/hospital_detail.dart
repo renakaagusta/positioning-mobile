@@ -240,21 +240,14 @@ class _HospitalDetailPageState extends State<HospitalDetailPage> {
                             width: MediaQuery.of(context).size.width,
                             content: Column(
                               children: [
-                                AppOutlinedButton(
+                                 AppElevatedButton(
+                                    backgroundColor: AppColor.primaryColor,
                                     onPressed: ()  {
                                       launch('tel://${hospital.meta['phoneNumber']}');
                                       },
                                     icon: Icon(CupertinoIcons.phone),
                                     text: 'Panggilan',
-                                    color: AppColor.primaryColor),
-                                const SizedBox(
-                                  height: 5,
-                                ),
-                                AppElevatedButton(
-                                    backgroundColor: AppColor.primaryColor,
-                                    icon: Icon(CupertinoIcons.paperclip),
-                                    text: 'Buat laporan',
-                                    onPressed: () => {})
+                                    color: Colors.white),
                               ],
                             ))),
                   ],

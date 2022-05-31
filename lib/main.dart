@@ -65,7 +65,7 @@ class MyApp extends StatelessWidget {
               create: (_) => PoliceProfileProvider()),
           ChangeNotifierProvider<PoliceListProvider>(
               create: (_) => PoliceListProvider()),
-              ChangeNotifierProvider<ReportDetailProvider>(
+          ChangeNotifierProvider<ReportDetailProvider>(
               create: (_) => ReportDetailProvider()),
           ChangeNotifierProvider<ReportListProvider>(
               create: (_) => ReportListProvider()),
@@ -79,6 +79,7 @@ class MyApp extends StatelessWidget {
               create: (_) => RouteCollectionListProvider()),
         ],
         child: MaterialApp(
+            debugShowCheckedModeBanner: false,
             title: AppString.appName,
             theme: ThemeData(
               textTheme: textTheme,

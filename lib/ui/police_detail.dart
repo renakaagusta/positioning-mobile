@@ -240,21 +240,15 @@ class _PoliceDetailPageState extends State<PoliceDetailPage> {
                             width: MediaQuery.of(context).size.width,
                             content: Column(
                               children: [
-                                AppOutlinedButton(
-                                    onPressed: ()  {
-                                      launch('tel://${police.meta['phoneNumber']}');
-                                      },
-                                    icon: Icon(CupertinoIcons.phone),
-                                    text: 'Panggilan',
-                                    color: AppColor.primaryColor),
-                                const SizedBox(
-                                  height: 5,
-                                ),
                                 AppElevatedButton(
                                     backgroundColor: AppColor.primaryColor,
-                                    icon: Icon(CupertinoIcons.paperclip),
-                                    text: 'Buat laporan',
-                                    onPressed: () => {})
+                                    onPressed: () {
+                                      launch(
+                                          'tel://${police.meta['phoneNumber']}');
+                                    },
+                                    icon: Icon(CupertinoIcons.phone),
+                                    text: 'Panggilan',
+                                    color: Colors.white),
                               ],
                             ))),
                   ],

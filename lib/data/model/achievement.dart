@@ -17,17 +17,11 @@ class Achievement {
 
   Achievement.fromJson(Map<String, dynamic> json) {
     id = json['_id'];
-    print("1");
     instance = json['instance'];
-    print("2");
     category = json['category'];
-    print("3");
     title = json['title'];
-    print("4");
     rank = json['rank'];
-    print("5");
     score = json['score'];
-    print("6");
   }
 
   Map<String, dynamic> toJson() {
