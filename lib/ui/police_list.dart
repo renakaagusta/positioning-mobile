@@ -171,7 +171,7 @@ class _PoliceListPageState extends State<PoliceListPage> {
                                               ],
                                             )),
                                       ),
-                                      SizedBox(
+                                      const SizedBox(
                                         height: 20,
                                       )
                                     ]),

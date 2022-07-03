@@ -288,6 +288,10 @@ class _ReportListPageState extends State<ReportListPage> {
                                   listen: false)
                               .createReport(body);
 
+                          await Provider.of<ReportListProvider>(context,
+                                  listen: false)
+                              .getReportList();
+
                           final reportId = Provider.of<ReportCreateProvider>(
                                   context,
                                   listen: false)
@@ -398,7 +402,7 @@ class _ReportListPageState extends State<ReportListPage> {
                       ),
                       Consumer<ReportListProvider>(
                         builder: (context, state, _) {
-                          if (state.state == ResultState.Loading) {
+                          if (state.state == ResultState.Idle) {
                             return Container(
                               height: MediaQuery.of(context).size.height - 300,
                               width: MediaQuery.of(context).size.width,
@@ -513,6 +517,15 @@ class _ReportListPageState extends State<ReportListPage> {
                                                                       fontWeight:
                                                                           FontWeight
                                                                               .bold)),
+                                                        ),
+                                                        Column(
+                                                          children: [
+                                                            const SizedBox(
+                                                              height: 10,
+                                                            ),
+                                                            Text(reportList[
+                                                                    index].status!),
+                                                          ],
                                                         ),
                                                         const SizedBox(
                                                           height: 10,

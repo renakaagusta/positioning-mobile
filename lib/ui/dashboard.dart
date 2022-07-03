@@ -1,8 +1,12 @@
+import 'dart:async';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:positioning/constant/colors.dart';
 import 'package:positioning/provider/auth/auth_provider.dart';
+import 'package:positioning/provider/user/report_list_notification_provider.dart';
 import 'package:positioning/provider/user/user_profile_provider.dart';
 import 'package:positioning/ui/home.dart';
 import 'package:positioning/ui/hospital_list.dart';
@@ -40,9 +44,38 @@ class _DashboardPageState extends State<DashboardPage> {
   void getUserProfile() async {
     String? userId = Provider.of<AuthProvider>(context, listen: false).userId;
     if (userId != null) {
-      Provider.of<UserProfileProvider>(context, listen: false)
+      await Provider.of<UserProfileProvider>(context, listen: false)
           .getUserProfile(userId);
     }
+
+    Timer.periodic(Duration(seconds: 10), (timer) async {
+      await Provider.of<ReportListNotificationProvider>(context, listen: false)
+          .getReportList();
+      final reportList = Provider.of<ReportListNotificationProvider>(context, listen: false)
+          .resultReportList;
+      final user = Provider.of<UserProfileProvider>(context, listen: false)
+          .resultUserProfile;
+
+      if (reportList != null && user != null) {
+        if (user.role == 'rider') {
+          final rejectedReport = reportList.where((report) =>
+              report.status == 'rejected' && report.rider == user.id);
+          if (rejectedReport.isNotEmpty) {
+            EasyLoading.showInfo(
+                    "Laporan anda ditolak, silahkan lihat menu laporan untuk melihat detailnya!")
+                .timeout(Duration(seconds: 10));
+          }
+        } else {
+          final submittedReport = reportList.where((report) =>
+             (report.status == 'submitted'||report.status == 'created')  && report.handler == user.id);
+          if (submittedReport.isNotEmpty) {
+            EasyLoading.showInfo(
+                    "Laporan anda ditolak, silahkan lihat menu laporan untuk melihat detailnya!")
+                .timeout(Duration(seconds: 10));
+          }
+        }
+      }
+    });
   }
 
   @override
@@ -53,10 +86,9 @@ class _DashboardPageState extends State<DashboardPage> {
 
   @override
   Widget build(BuildContext context) {
-    return 
-          Consumer<UserProfileProvider>(builder: (context, state, _) {
-        return Scaffold(
-      bottomNavigationBar: BottomAppBar(
+    return Consumer<UserProfileProvider>(builder: (context, state, _) {
+      return Scaffold(
+        bottomNavigationBar: BottomAppBar(
             child: Padding(
           padding: const EdgeInsets.symmetric(vertical: 5),
           child: Row(
@@ -80,9 +112,9 @@ class _DashboardPageState extends State<DashboardPage> {
                                           color: (currentPage == 0)
                                               ? AppColor.primaryColor
                                               : Colors.black54),
-                                      Text('Home',
+                                      Text('Beranda',
                                           style: TextStyle(
-                                              fontSize: 12.0,
+                                              fontSize: 11.0,
                                               color: (currentPage == 0)
                                                   ? AppColor.primaryColor
                                                   : Colors.black54))
@@ -104,7 +136,7 @@ class _DashboardPageState extends State<DashboardPage> {
                                               : Colors.black54),
                                       Text('Rumah Sakit',
                                           style: TextStyle(
-                                              fontSize: 12.0,
+                                              fontSize: 11.0,
                                               color: (currentPage == 1)
                                                   ? AppColor.primaryColor
                                                   : Colors.black54))
@@ -126,7 +158,7 @@ class _DashboardPageState extends State<DashboardPage> {
                                               : Colors.black54),
                                       Text('Polisi',
                                           style: TextStyle(
-                                              fontSize: 12.0,
+                                              fontSize: 11.0,
                                               color: (currentPage == 2)
                                                   ? AppColor.primaryColor
                                                   : Colors.black54))
@@ -148,7 +180,7 @@ class _DashboardPageState extends State<DashboardPage> {
                                               : Colors.black54),
                                       Text('Laporan',
                                           style: TextStyle(
-                                              fontSize: 12.0,
+                                              fontSize: 11.0,
                                               color: (currentPage == 3)
                                                   ? AppColor.primaryColor
                                                   : Colors.black54))
@@ -170,7 +202,7 @@ class _DashboardPageState extends State<DashboardPage> {
                                               : Colors.black54),
                                       Text('Profil',
                                           style: TextStyle(
-                                              fontSize: 12.0,
+                                              fontSize: 11.0,
                                               color: (currentPage == 4)
                                                   ? AppColor.primaryColor
                                                   : Colors.black54))
@@ -192,14 +224,14 @@ class _DashboardPageState extends State<DashboardPage> {
                                           color: (currentPage == 0)
                                               ? AppColor.primaryColor
                                               : Colors.black54),
-                                      Text('Home',
+                                      Text('Beranda',
                                           style: TextStyle(
-                                              fontSize: 12.0,
+                                              fontSize: 11.0,
                                               color: (currentPage == 0)
                                                   ? AppColor.primaryColor
                                                   : Colors.black54))
                                     ])))),
-                         Expanded(
+                        Expanded(
                             child: GestureDetector(
                                 onTap: () {
                                   setState(() {
@@ -211,12 +243,12 @@ class _DashboardPageState extends State<DashboardPage> {
                                     height: 50.0,
                                     child: Column(children: [
                                       Icon(CupertinoIcons.paperclip,
-                                          color: (currentPage ==1)
+                                          color: (currentPage == 1)
                                               ? AppColor.primaryColor
                                               : Colors.black54),
                                       Text('Laporan',
                                           style: TextStyle(
-                                              fontSize: 12.0,
+                                              fontSize: 11.0,
                                               color: (currentPage == 1)
                                                   ? AppColor.primaryColor
                                                   : Colors.black54))
@@ -238,7 +270,7 @@ class _DashboardPageState extends State<DashboardPage> {
                                               : Colors.black54),
                                       Text('Profil',
                                           style: TextStyle(
-                                              fontSize: 12.0,
+                                              fontSize: 11.0,
                                               color: (currentPage == 4)
                                                   ? AppColor.primaryColor
                                                   : Colors.black54))
@@ -260,9 +292,9 @@ class _DashboardPageState extends State<DashboardPage> {
                                       color: (currentPage == 0)
                                           ? AppColor.primaryColor
                                           : Colors.black54),
-                                  Text('Home',
+                                  Text('Beranda',
                                       style: TextStyle(
-                                          fontSize: 12.0,
+                                          fontSize: 11.0,
                                           color: (currentPage == 0)
                                               ? AppColor.primaryColor
                                               : Colors.black54))
@@ -284,7 +316,7 @@ class _DashboardPageState extends State<DashboardPage> {
                                           : Colors.black54),
                                   Text('Rumah Sakit',
                                       style: TextStyle(
-                                          fontSize: 12.0,
+                                          fontSize: 11.0,
                                           color: (currentPage == 1)
                                               ? AppColor.primaryColor
                                               : Colors.black54))
@@ -306,7 +338,7 @@ class _DashboardPageState extends State<DashboardPage> {
                                           : Colors.black54),
                                   Text('Polisi',
                                       style: TextStyle(
-                                          fontSize: 12.0,
+                                          fontSize: 11.0,
                                           color: (currentPage == 2)
                                               ? AppColor.primaryColor
                                               : Colors.black54))
@@ -328,7 +360,7 @@ class _DashboardPageState extends State<DashboardPage> {
                                           : Colors.black54),
                                   Text('Laporan',
                                       style: TextStyle(
-                                          fontSize: 12.0,
+                                          fontSize: 11.0,
                                           color: (currentPage == 3)
                                               ? AppColor.primaryColor
                                               : Colors.black54))
@@ -350,7 +382,7 @@ class _DashboardPageState extends State<DashboardPage> {
                                           : Colors.black54),
                                   Text('Profil',
                                       style: TextStyle(
-                                          fontSize: 12.0,
+                                          fontSize: 11.0,
                                           color: (currentPage == 4)
                                               ? AppColor.primaryColor
                                               : Colors.black54))
@@ -358,19 +390,24 @@ class _DashboardPageState extends State<DashboardPage> {
                   ],
           ),
         )),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-      body: AnnotatedRegion<SystemUiOverlayStyle>(
-        value: const SystemUiOverlayStyle(
-          statusBarColor: Colors.transparent,
-          statusBarIconBrightness: Brightness.light,
-          systemStatusBarContrastEnforced: true,
+        floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+        body: AnnotatedRegion<SystemUiOverlayStyle>(
+          value: const SystemUiOverlayStyle(
+            statusBarColor: Colors.transparent,
+            statusBarIconBrightness: Brightness.light,
+            systemStatusBarContrastEnforced: true,
+          ),
+          child: Container(
+              height: double.infinity,
+              width: double.infinity,
+              child: state.state == ResultState.HasData
+                  ? state.resultUserProfile!.role == 'rider'
+                      ? riderPageList[currentPage]
+                      : instancePageList[currentPage]
+                  : riderPageList[currentPage]),
         ),
-        child: Container(
-            height: double.infinity,
-            width: double.infinity,
-            child: state.state == ResultState.HasData ? state.resultUserProfile!.role == 'rider' ? riderPageList[currentPage] : instancePageList[currentPage] : riderPageList[currentPage]),
-      ),
-    );});
+      );
+    });
   }
 
   @override

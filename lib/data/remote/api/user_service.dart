@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:path/path.dart';
 import 'package:positioning/data/model/api_response.dart';
 import 'package:positioning/data/model/user.dart';
 import 'package:positioning/helpers/exception/http_exception.dart';
@@ -16,6 +17,38 @@ class UserService {
       ApiResponse apiResponse = ApiResponse.fromJson(response.data);
       if (apiResponse.status == 'success') {
         return User.fromJson(apiResponse.data['user']);
+      } else {
+        throw HttpException(apiResponse.error?? apiResponse.message!);
+      }
+    } catch (error) {
+      rethrow;
+    }
+  }
+
+  Future<bool> updateUserData(String userId, Map<String, String> body) async {
+    try {
+      Response response = await _dio.put(_dio.options.baseUrl + '/users/' + userId, data: body);
+      ApiResponse apiResponse = ApiResponse.fromJson(response.data);
+      if (apiResponse.status == 'success') {
+        return true;
+      } else {
+        throw HttpException(apiResponse.error?? apiResponse.message!);
+      }
+    } catch (error) {
+      rethrow;
+    }
+  }
+
+  Future<String> updateUserPhoto(String userId, Map<String, String> body) async {
+    try {
+      FormData formData = FormData.fromMap({
+      'photo': await MultipartFile.fromFile(body['photo']!, filename: basename(body['photo']!)),
+    });
+
+      Response response = await _dio.put(_dio.options.baseUrl + '/users/' + userId + '/photo', data: formData);
+      ApiResponse apiResponse = ApiResponse.fromJson(response.data);
+      if (apiResponse.status == 'success') {
+        return apiResponse.data['photoUrl'];
       } else {
         throw HttpException(apiResponse.error?? apiResponse.message!);
       }
@@ -51,8 +84,12 @@ class UserService {
       } else {
         throw HttpException(apiResponse.error?? apiResponse.message!);
       }
-    } catch (error) {
-      rethrow;
+    } catch (e) {
+      if (e is DioError) {
+        throw HttpException("Username/email telah digunakan");
+      } else {
+        throw HttpException("Username/email telah digunakan");
+      }
     }
   }
 }

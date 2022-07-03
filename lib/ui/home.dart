@@ -87,18 +87,23 @@ class _HomePageState extends State<HomePage> {
                 return const Center(child: Text('User not found'));
               } else if (state.state == ResultState.Loading) {
                 return Container(
-                          height: MediaQuery.of(context).size.height - 300,
-                          width: MediaQuery.of(context).size.width,
-                          child: Center(
-                              child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Image.asset(AppAsset.welcomeIllustration, height: 200,),
-                              const SizedBox(height: 10,),
-                              const Text('Loading...'),
-                            ],
-                          )),
-                        );
+                  height: MediaQuery.of(context).size.height - 300,
+                  width: MediaQuery.of(context).size.width,
+                  child: Center(
+                      child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Image.asset(
+                        AppAsset.welcomeIllustration,
+                        height: 200,
+                      ),
+                      const SizedBox(
+                        height: 10,
+                      ),
+                      const Text('Loading...'),
+                    ],
+                  )),
+                );
               } else if (state.state == ResultState.HasData) {
                 return Container(
                     padding: const EdgeInsets.symmetric(
@@ -109,21 +114,36 @@ class _HomePageState extends State<HomePage> {
                         const SizedBox(
                           height: 20,
                         ),
-                        Text(AppString.appName,
-                            style: Theme.of(context)
-                                .textTheme
-                                .headlineLarge
-                                ?.copyWith(
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.black)),
-                        const SizedBox(
-                          height: 10,
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(AppString.appName,
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .headlineLarge
+                                        ?.copyWith(
+                                            fontWeight: FontWeight.bold,
+                                            color: Color(0xff003880))),
+                                const SizedBox(
+                                  height: 10,
+                                ),
+                                Text(AppString.tagline,
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .bodyText2
+                                        ?.copyWith(color: Color(0xff003880))),
+                              ],
+                            ),
+                            Image.asset(
+                              AppAsset.appIcon,
+                              height: 100,
+                              width: 100,
+                            ),
+                          ],
                         ),
-                        Text('Selamat datang ${state.resultUserProfile!.name}',
-                            style: Theme.of(context)
-                                .textTheme
-                                .titleLarge
-                                ?.copyWith(color: Colors.black)),
                         const SizedBox(
                           height: 40,
                         ),

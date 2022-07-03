@@ -3,17 +3,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:positioning/constant/assets.dart';
 import 'package:positioning/constant/colors.dart';
 import 'package:positioning/data/model/user.dart';
+import 'package:positioning/provider/user/police_profile_provider.dart';
 import 'package:positioning/provider/user/user_profile_provider.dart';
 import 'package:positioning/utils/result_state.dart';
 import 'package:positioning/widgets/app_bar.dart';
 import 'package:positioning/widgets/card.dart';
 import 'package:positioning/widgets/elevated_button.dart';
-import 'package:positioning/widgets/outlined_button.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class PoliceDetailArguments {
   String policeId;
@@ -67,8 +67,8 @@ class _PoliceDetailPageState extends State<PoliceDetailPage> {
   void getPoliceProfile() {
     final arguments =
         ModalRoute.of(context)!.settings.arguments as PoliceDetailArguments;
-    Provider.of<UserProfileProvider>(context, listen: false)
-        .getUserProfile(arguments.policeId);
+    Provider.of<PoliceProfileProvider>(context, listen: false)
+        .getPoliceProfile(arguments.policeId);
   }
 
   @override
@@ -88,9 +88,9 @@ class _PoliceDetailPageState extends State<PoliceDetailPage> {
         ),
         child: Scaffold(
           appBar: CustomAppBar(
-            title: 'Rumah Sakit',
+            title: 'Kantor Polisi',
           ),
-          body: Consumer<UserProfileProvider>(
+          body: Consumer<PoliceProfileProvider>(
             builder: (context, state, _) {
               if (state.state == ResultState.Loading) {
                 return Container(
@@ -128,7 +128,7 @@ class _PoliceDetailPageState extends State<PoliceDetailPage> {
                   )),
                 );
               } else if (state.state == ResultState.HasData) {
-                User police = state.resultUserProfile!;
+                User police = state.resultPoliceProfile!;
                 LatLng position = LatLng(
                     double.tryParse(police.meta['location']['static']
                                 ['latitude']) !=

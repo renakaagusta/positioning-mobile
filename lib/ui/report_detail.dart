@@ -191,23 +191,15 @@ class _ReportDetailPageState extends State<ReportDetailPage> {
     double representationDistance =
         calculateDistance(position, initialRepresentationPointPosition);
 
-    print(representationPoint.properties!.text);
-    print(representationDistance);
-
     pointCollection.data!.forEachIndexed((index, point) {
       final instancePosition = LatLng(
           point.geometry!.coordinates![1], point.geometry!.coordinates![0]);
       final distance = calculateDistance(position, instancePosition);
-      print(instancePosition);
-      print(distance);
+
       if (distance < representationDistance) {
         representationDistance = distance;
         representationPoint = point;
       }
-      print("result");
-
-      print(representationPoint.properties!.text);
-      print(representationDistance);
     });
 
     return representationPoint;
@@ -454,7 +446,7 @@ class _ReportDetailPageState extends State<ReportDetailPage> {
                                   const SizedBox(
                                     height: 20,
                                   ),
-                                  if (currentUser.role != "rider")
+                                  if (currentUser.role != "rider" && report.status != 'Confirmed')
                                     Column(
                                       children: [
                                         AppElevatedButton(

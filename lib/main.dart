@@ -15,19 +15,24 @@ import 'package:positioning/provider/user/police_profile_provider.dart';
 import 'package:positioning/provider/user/report_create_provider.dart';
 import 'package:positioning/provider/user/report_detail_provider.dart';
 import 'package:positioning/provider/user/report_list_provider.dart';
+import 'package:positioning/provider/user/report_list_notification_provider.dart';
 import 'package:positioning/provider/user/report_update_provider.dart';
 import 'package:positioning/provider/user/route_collection_list_provider.dart';
 import 'package:positioning/provider/user/user_list_provider.dart';
 import 'package:positioning/provider/user/user_profile_provider.dart';
+import 'package:positioning/provider/user/user_update_data_provider.dart';
+import 'package:positioning/provider/user/user_update_photo_provider.dart';
 import 'package:positioning/ui/dashboard.dart';
 import 'package:positioning/ui/hospital_detail.dart';
 import 'package:positioning/ui/my_location.dart';
 import 'package:positioning/ui/police_detail.dart';
+import 'package:positioning/ui/privacy.dart';
 import 'package:positioning/ui/profile_edit.dart';
 import 'package:positioning/ui/report_detail.dart';
 import 'package:positioning/ui/sign_in.dart';
 import 'package:positioning/ui/sign_up.dart';
 import 'package:positioning/ui/sign_up_success.dart';
+import 'package:positioning/ui/version.dart';
 import 'package:positioning/ui/welcome.dart';
 import 'package:provider/provider.dart';
 
@@ -55,6 +60,10 @@ class MyApp extends StatelessWidget {
           ChangeNotifierProvider<AuthProvider>(create: (_) => AuthProvider()),
           ChangeNotifierProvider<UserProfileProvider>(
               create: (_) => UserProfileProvider()),
+          ChangeNotifierProvider<UpdateUserPhotoProvider>(
+              create: (_) => UpdateUserPhotoProvider()),
+          ChangeNotifierProvider<UpdateUserDataProvider>(
+              create: (_) => UpdateUserDataProvider()),
           ChangeNotifierProvider<UserListProvider>(
               create: (_) => UserListProvider()),
           ChangeNotifierProvider<HospitalProfileProvider>(
@@ -69,6 +78,8 @@ class MyApp extends StatelessWidget {
               create: (_) => ReportDetailProvider()),
           ChangeNotifierProvider<ReportListProvider>(
               create: (_) => ReportListProvider()),
+          ChangeNotifierProvider<ReportListNotificationProvider>(
+              create: (_) => ReportListNotificationProvider()),
           ChangeNotifierProvider<ReportCreateProvider>(
               create: (_) => ReportCreateProvider()),
           ChangeNotifierProvider<ReportUpdateProvider>(
@@ -102,7 +113,11 @@ class MyApp extends StatelessWidget {
               HospitalDetailPage.routeName: (context) =>
                   const HospitalDetailPage(),
               ProfileEditPage.routeName: (context) => const ProfileEditPage(),
-              MyLocationPage.routeName: (context) => const MyLocationPage()
+              PrivacyPage.routeName: (context) => PrivacyPage(),
+              VersionPage.routeName: (context) => VersionPage(),
+              ProfileEditPage.routeName: (context) => const ProfileEditPage(),
+              MyLocationPage.routeName: (context) => const MyLocationPage(),
+              ProfileEditPage.routeName: (context) => const ProfileEditPage()
             }));
   }
 }

@@ -204,6 +204,12 @@ class _SignUpPageState extends State<SignUpPage> {
                                           return;
                                         }
 
+                                        if (!emailController.text.contains('@') || !emailController.text.contains('.')) {
+                                          EasyLoading.showInfo(
+                                              "Format email tidak sesuai");
+                                          return;
+                                        }
+
                                         if (passwordController.text !=
                                             passwordConfirmationController
                                                 .text) {
@@ -215,7 +221,7 @@ class _SignUpPageState extends State<SignUpPage> {
                                         Provider.of<SignUpProvider>(context,
                                                 listen: false)
                                             .signUp({
-                                          'username': fullnameController.text,
+                                          'username': usernameController.text,
                                           'name': fullnameController.text,
                                           'email': emailController.text,
                                           'password': passwordController.text,
